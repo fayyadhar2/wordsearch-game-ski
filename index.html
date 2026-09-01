@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Makkah Before Islam: The Hidden Reality</title>
+  <style>
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --accent-gold: #f59e0b;
+      --accent-green: #10b981;
+      --accent-blue: #38bdf8;
+      --accent-red: #ef4444;
+      --grid-border: #334155;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 15px;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 15px;
+      width: 100%;
+      max-width: 1400px;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      color: var(--accent-gold);
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    p.subtitle {
+      font-size: 1.1rem;
+      color: var(--accent-blue);
+      margin-bottom: 8px;
+    }
+
+    /* Identitas Pengampu & Sekolah */
+    .identity-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+      margin-top: 6px;
+      font-size: 0.95rem;
+      color: #cbd5e1;
+      flex-wrap: wrap;
+    }
+
+    .identity-tag {
+      background: #334155;
+      color: var(--accent-blue);
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-weight: 600;
+      border: 1px solid var(--grid-border);
+    }
+
+    .identity-teacher {
+      background: rgba(245, 158, 11, 0.1);
+      color: var(--text-main);
+      padding: 4px 14px;
+      border-radius: 20px;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .identity-teacher strong {
+      color: var(--accent-gold);
+    }
+
+    /* Scoreboard & Control Panel */
+    .control-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--card-bg);
+      padding: 12px 25px;
+      border-radius: 12px;
+      border: 1px solid var(--grid-border);
+      margin-top: 15px;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .scoreboard {
+      display: flex;
+      gap: 25px;
+      font-size: 1.2rem;
+      font-weight: bold;
+    }
+
+    .score-item span { color: var(--accent-green); }
+
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-action {
+      padding: 10px 20px;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-undo {
+      background-color: #334155;
+      color: #94a3b8;
+      border: 1px solid var(--grid-border);
+      cursor: not-allowed;
+    }
+
+    .btn-undo.active {
+      background-color: #7f1d1d;
+      color: #fca5a5;
+      border-color: var(--accent-red);
+      cursor: pointer;
+    }
+
+    .btn-undo.active:hover {
+      background-color: var(--accent-red);
+      color: #fff;
+    }
+
+    .btn-explain {
+      background-color: #334155;
+      color: #94a3b8;
+      border: 1px solid var(--grid-border);
+      cursor: not-allowed;
+    }
+
+    .btn-explain.active {
+      background-color: #78350f;
+      color: #fef08a;
+      border-color: var(--accent-gold);
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+      animation: pulse 1.5s infinite;
+    }
+
+    .btn-explain.active:hover {
+      background-color: var(--accent-gold);
+      color: #000;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.03); }
+      100% { transform: scale(1); }
+    }
+
+    .main-container {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      max-width: 1400px;
+      justify-content: center;
+      align-items: flex-start;
+      margin-top: 15px;
+    }
+
+    /* Word Grid Styling */
+    .grid-container {
+      background: var(--card-bg);
+      padding: 15px;
+      border-radius: 16px;
+      border: 2px solid var(--grid-border);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+    }
+
+    #word-grid {
+      display: grid;
+      grid-template-columns: repeat(18, 1fr);
+      gap: 4px;
+      user-select: none;
+    }
+
+    .cell {
+      width: 38px;
+      height: 38px;
+      background-color: #0f172a;
+      border: 1px solid var(--grid-border);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      font-weight: bold;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .cell:hover {
+      background-color: #334155;
+      border-color: var(--accent-blue);
+    }
+
+    .cell.selected {
+      background-color: var(--accent-gold) !important;
+      color: #000 !important;
+      transform: scale(1.05);
+    }
+
+    .cell.found {
+      background-color: var(--accent-green) !important;
+      color: #ffffff !important;
+      border-color: var(--accent-green);
+    }
+
+    /* Word List Sidebar */
+    .sidebar {
+      flex: 1;
+      max-width: 450px;
+      background: var(--card-bg);
+      padding: 15px;
+      border-radius: 16px;
+      border: 2px solid var(--grid-border);
+      max-height: 720px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar h2 {
+      font-size: 1.3rem;
+      color: var(--accent-gold);
+      margin-bottom: 10px;
+      border-bottom: 2px solid var(--grid-border);
+      padding-bottom: 5px;
+    }
+
+    .word-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      overflow-y: auto;
+      padding-right: 5px;
+    }
+
+    .word-item {
+      background: #0f172a;
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: 1px solid var(--grid-border);
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .word-item:hover {
+      border-color: var(--accent-blue);
+      color: var(--text-main);
+    }
+
+    .word-item.found {
+      background: #064e3b;
+      color: var(--accent-green);
+      text-decoration: line-through;
+      border-color: var(--accent-green);
+    }
+
+    /* Modal Pop-Up */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(5px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-card {
+      background: #1e293b;
+      border: 3px solid var(--accent-gold);
+      border-radius: 20px;
+      padding: 30px;
+      max-width: 650px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+      transform: scale(0.8);
+      transition: transform 0.3s ease;
+    }
+
+    .modal-overlay.active .modal-card {
+      transform: scale(1);
+    }
+
+    .modal-badge {
+      background: var(--accent-gold);
+      color: #000;
+      font-weight: bold;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+      display: inline-block;
+      margin-bottom: 15px;
+      text-transform: uppercase;
+    }
+
+    .modal-title {
+      font-size: 2.5rem;
+      color: var(--text-main);
+      margin-bottom: 15px;
+      letter-spacing: 2px;
+    }
+
+    .modal-desc {
+      font-size: 1.25rem;
+      line-height: 1.6;
+      color: #cbd5e1;
+      margin-bottom: 25px;
+      background: #0f172a;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid var(--grid-border);
+      text-align: left;
+    }
+
+    .btn-close {
+      background: var(--accent-green);
+      color: #ffffff;
+      border: none;
+      padding: 12px 35px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-close:hover {
+      background: #059669;
+    }
+
+    /* ===== Mode siswa / admin ===== */
+    .hidden { display:none !important; }
+    .screen-overlay {
+      position:fixed; inset:0; z-index:3000; display:flex; align-items:center; justify-content:center;
+      background:rgba(2,6,23,.92); backdrop-filter:blur(7px); padding:20px;
+    }
+    .login-card {
+      width:min(480px, 94vw); background:#1e293b; border:2px solid var(--accent-gold);
+      border-radius:18px; padding:30px; box-shadow:0 20px 60px rgba(0,0,0,.6); text-align:center;
+    }
+    .login-card h2 { color:var(--accent-gold); margin-bottom:10px; }
+    .login-card p { color:#cbd5e1; line-height:1.6; margin-bottom:18px; }
+    .login-card input {
+      width:100%; padding:13px 14px; border-radius:10px; border:1px solid var(--grid-border);
+      background:#0f172a; color:#fff; font-size:1rem; margin-bottom:12px; outline:none;
+    }
+    .login-card input:focus { border-color:var(--accent-gold); box-shadow:0 0 0 2px rgba(245,158,11,.16); }
+    .btn-primary, .btn-secondary {
+      border:none; border-radius:10px; padding:11px 18px; font-weight:700; cursor:pointer; font-size:.98rem;
+    }
+    .btn-primary { background:var(--accent-gold); color:#111827; }
+    .btn-secondary { background:#334155; color:#e2e8f0; }
+    .login-row { display:flex; gap:8px; }
+    .login-row > * { flex:1; }
+    .hint-text { margin-top:10px; color:#94a3b8 !important; font-size:.85rem !important; }
+
+    .student-pill {
+      display:inline-flex; align-items:center; gap:7px; background:#334155; color:#f8fafc;
+      padding:6px 12px; border-radius:999px; font-size:.88rem; border:1px solid var(--grid-border);
+    }
+    .student-pill strong { color:var(--accent-gold); }
+
+    #student-main { width:100%; }
+    .student-note {
+      background:rgba(56,189,248,.08); border:1px solid rgba(56,189,248,.22); color:#cbd5e1;
+      padding:10px 12px; border-radius:10px; margin:10px auto 0; max-width:1400px; line-height:1.5; font-size:.92rem;
+    }
+    .progress-chip {
+      background:#334155; border:1px solid var(--grid-border); color:#cbd5e1; padding:5px 10px; border-radius:999px; font-size:.82rem;
+    }
+
+    .explain-card {
+      background:#0f172a; border:1px solid var(--grid-border); border-radius:12px; padding:16px; text-align:left; margin:12px 0 18px;
+    }
+    .explain-card label { display:block; color:#cbd5e1; font-weight:700; margin-bottom:8px; }
+    .explain-card textarea {
+      width:100%; min-height:120px; resize:vertical; border:1px solid var(--grid-border); border-radius:10px;
+      background:#111827; color:#fff; padding:12px; font-size:1rem; line-height:1.5; outline:none;
+    }
+    .explain-card textarea:focus { border-color:var(--accent-gold); }
+    .explain-help { color:#94a3b8; font-size:.84rem; margin-top:6px; }
+    .modal-card.wide { max-width:760px; }
+
+    /* Admin dashboard */
+    #adminApp { width:100%; max-width:1400px; margin:0 auto; }
+    .admin-shell { width:100%; }
+    .admin-header {
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      background:var(--card-bg); border:1px solid var(--grid-border); border-radius:14px; padding:14px 16px; margin-bottom:14px;
+    }
+    .admin-header h2 { color:var(--accent-gold); }
+    .admin-meta { color:#94a3b8; font-size:.9rem; }
+    .admin-actions { display:flex; gap:8px; flex-wrap:wrap; }
+    .admin-table-wrap { overflow:auto; border:1px solid var(--grid-border); border-radius:12px; }
+    table.admin-table { width:100%; border-collapse:collapse; min-width:820px; background:#0f172a; }
+    .admin-table th, .admin-table td { padding:10px 12px; border-bottom:1px solid var(--grid-border); text-align:left; }
+    .admin-table th { color:var(--accent-gold); background:#172033; font-size:.85rem; text-transform:uppercase; letter-spacing:.04em; }
+    .admin-table td { color:#e2e8f0; font-size:.92rem; }
+    .score-big { color:var(--accent-green); font-weight:800; font-size:1.1rem; }
+    .award-row { display:flex; gap:6px; }
+    .award-btn { border:none; border-radius:7px; padding:7px 10px; font-weight:800; cursor:pointer; }
+    .award-3 { background:#38bdf8; color:#082f49; }
+    .award-5 { background:#f59e0b; color:#451a03; }
+    .award-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .admin-empty { padding:30px; text-align:center; color:#94a3b8; }
+    .admin-status { font-family:monospace; font-size:.8rem; color:#94a3b8; margin-top:8px; }
+
+    @media (max-width: 900px) {
+      .main-container { flex-direction:column; align-items:stretch; }
+      .grid-container { overflow-x:auto; }
+      .sidebar { max-width:none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- LOGIN SISWA -->
+  <div class="screen-overlay" id="studentLogin">
+    <div class="login-card">
+      <h2>🎮 Kuis Pencari Kata</h2>
+      <p><strong>Makkah Before Islam: The Hidden Reality</strong><br>Masukkan nama/username sebelum mulai. Gunakan nama yang mudah dikenali oleh guru.</p>
+      <input id="studentName" type="text" maxlength="60" placeholder="Nama / Username" onkeydown="if(event.key==='Enter') startStudent()">
+      <div class="login-row"><button class="btn-primary" onclick="startStudent()">Mulai Game</button></div>
+      <p class="hint-text">Setelah menemukan kata yang benar, kamu mendapat <strong>5 poin</strong> dan harus menuliskan penjelasannya.</p>
+    </div>
+  </div>
+
+  <!-- LOGIN ADMIN -->
+  <div class="screen-overlay hidden" id="adminLogin">
+    <div class="login-card">
+      <h2>🛡️ Panel Guru / Admin</h2>
+      <p>Masukkan kunci admin untuk melihat daftar siswa, skor, dan memberikan tambahan poin.</p>
+      <input id="adminKey" type="password" placeholder="Kunci admin" onkeydown="if(event.key==='Enter') adminLogin()">
+      <div class="login-row"><button class="btn-primary" onclick="adminLogin()">Masuk Panel Guru</button></div>
+    </div>
+  </div>
+
+  <!-- APLIKASI SISWA -->
+  <div id="studentApp" class="hidden" style="width:100%">
+    <header>
+      <h1>Makkah Before Islam: The Hidden Reality</h1>
+      <p class="subtitle">Kuis Pencari Kata - Kebudayaan &amp; Sistem Masyarakat Makkah Pra-Islam</p>
+      <div class="identity-container">
+        <span class="identity-tag">SKI Fase E MAN 2 Surakarta</span>
+        <span class="identity-teacher">Guru Pengampu: <strong>Rohmad Arbi Nur Shoddiq, S.Pd.I, M.Pd.</strong></span>
+        <span class="student-pill">👤 <strong id="studentNameDisplay">Siswa</strong></span>
+        <button class="btn-secondary" style="padding:6px 12px" onclick="changeStudent()">Ganti Nama</button>
+      </div>
+      <div class="control-container">
+        <div class="scoreboard">
+          <div class="score-item">Terkuak: <span id="found-count">0</span> / 30</div>
+          <div class="score-item">Total Poin: <span id="total-score">0</span></div>
+          <div class="progress-chip">Petunjuk: <span id="hint-level">1</span> huruf</div>
+        </div>
+        <div class="action-buttons">
+          <button id="btn-undo" class="btn-action btn-undo" disabled>✅ Mode belajar: jawaban benar bernilai +5</button>
+        </div>
+      </div>
+      <div class="student-note">🔎 <strong>Petunjuk kata:</strong> setiap kata yang belum ditemukan hanya menampilkan sebagian huruf. Semakin banyak jawaban benar, semakin banyak huruf petunjuk yang terbuka.</div>
+    </header>
+
+    <div class="main-container">
+      <div class="grid-container"><div id="word-grid"></div></div>
+      <div class="sidebar">
+        <h2>30 Kata Kunci (Petunjuk)</h2>
+        <div class="word-list" id="word-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL PENJELASAN SISWA -->
+  <div class="modal-overlay" id="modal">
+    <div class="modal-card wide">
+      <div class="modal-badge">Jawaban Benar · +5 Poin</div>
+      <h2 class="modal-title" id="explain-word">JAHILIYAH</h2>
+      <div class="explain-card">
+        <label for="explanationInput">Jelaskan arti / makna kata tersebut dengan bahasamu sendiri.</label>
+        <textarea id="explanationInput" placeholder="Tuliskan penjelasanmu di sini…"></textarea>
+        <div class="explain-help">Jawaban penjelasan ini akan tersimpan dan dapat dilihat oleh guru/admin.</div>
+      </div>
+      <button class="btn-close" onclick="saveExplanation()">💾 Simpan Penjelasan &amp; Lanjut ➔</button>
+    </div>
+  </div>
+
+  <!-- PANEL GURU / ADMIN -->
+  <div id="adminApp" class="hidden">
+    <div class="admin-shell">
+      <div class="admin-header">
+        <div>
+          <h2>📊 Panel Guru / Admin</h2>
+          <div class="admin-meta">Makkah Before Islam · Rekap peserta dan skor</div>
+          <div id="adminStatus" class="admin-status">Belum memuat data.</div>
+        </div>
+        <div class="admin-actions">
+          <button class="btn-primary" onclick="loadAdminData()">🔄 Refresh</button>
+          <button class="btn-secondary" onclick="adminLogout()">Keluar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>⚙️ Koneksi Google Sheets / Web App</h2>
+        <p style="color:#94a3b8;line-height:1.5;margin-bottom:10px">Masukkan URL Web App Google Apps Script yang digunakan untuk menyimpan nama dan skor siswa.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <input id="serverUrlInput" type="text" placeholder="https://script.google.com/macros/s/XXXX/exec" style="flex:1;min-width:260px">
+          <button class="btn-primary" onclick="saveServerUrl()">Simpan URL</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>👥 Siswa yang Mengerjakan</h2>
+        <div id="adminTableWrap"><div class="admin-empty">Memuat data siswa…</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="flashMessage" class="toast"></div>
+
+<script>
+    // ================= KONFIGURASI =================
+    // Setelah membuat Google Apps Script Web App, isi URL di bawah.
+    // Biarkan kosong bila ingin menguji game secara lokal tanpa dashboard online.
+    const CONFIG = {
+      WEB_APP_URL: "https://script.google.com/macros/s/XXXX/exec",
+      APP_VERSION: "2.0"
+    };
+
+    const wordData = [
+      { word: "JAHILIYAH", desc: "Masa 'kebodohan' moral dan aqidah masyarakat Makkah pra-Islam. Bukan bodoh secara akal/sains, melainkan tersesat dari ajaran tauhid dan keadilan sosial." },
+      { word: "HUBAL", desc: "Berhala terbesar berbahan batu akik merah yang diletakkan di dalam Ka'bah dan dijadikan sesembahan utama suku Quraisy." },
+      { word: "LATA", desc: "Berhala dalam bentuk batu putih berukir yang disembah dan disakralkan oleh masyarakat Makkah dan Thaqif di Kota Thaqif." },
+      { word: "UZZA", desc: "Berhala berbentuk pohon/bangunan sakral di Lembah Nakhlah yang dianggap berhala paling perkasa oleh suku Quraisy." },
+      { word: "MANAT", desc: "Berhala tertua yang dipuja oleh masyarakat Makkah dan Madinah pra-Islam di kawasan Qudaid." },
+      { word: "BERHALA", desc: "Patung atau objek buatan manusia yang dijadikan tandingan dan perantara untuk menyembah Allah SWT." },
+      { word: "MUSYRIK", desc: "Sebutan untuk orang yang menyekutukan Allah SWT dengan menyembah berhala atau benda lain." },
+      { word: "AZLAM", desc: "Anak panah tanpa bulu yang digunakan masyarakat Jahiliyah untuk mengocok nasib/keputusan di depan berhala." },
+      { word: "TAKHAYUL", desc: "Kepercayaan irasional pada hal-hal mistis yang tidak berdasar ilmu pengetahuan maupun ajaran agama murni." },
+      { word: "HANIF", desc: "Sikap/ajaran tauhid murni peninggalan Nabi Ibrahim AS yang masih dipegang oleh segelintir orang Makkah sebelum Islam." },
+      { word: "ASABIYAH", desc: "Sikap fanatisme suku atau kelompok yang buta; wajib membela anggota sukunya baik dalam posisi benar maupun salah." },
+      { word: "KABILAH", desc: "Suku atau kelompok kekerabatan besar berdasarkan garis keturunan yang menjadi struktur masyarakat utama di Arab." },
+      { word: "PERBUDAKAN", desc: "Sistem sosial diskriminatif yang memandang manusia sebagai barang dagangan tanpa hak-hak kemanusiaan." },
+      { word: "PASARUKAZ", desc: "Pusat perdagangan sekaligus panggung festival budaya dan kompetisi membaca syair paling bergengsi di Makkah." },
+      { word: "SYAIR", desc: "Puisi atau karya sastra tinggi yang dijadikan kebanggaan, tolok ukur kehormatan, dan alat propaganda antar-suku." },
+      { word: "WADULBANAT", desc: "Tradisi kejam mengubur bayi perempuan hidup-hidup karena dianggap membawa aib dan kemiskinan bagi kabilah." },
+      { word: "KASTA", desc: "Pemisahan derajat sosial yang tajam antara elit bangsawan kaya dan rakyat biasa/budak." },
+      { word: "SUKU", desc: "Tatanan ikatan sosial masyarakat Makkah yang terikat oleh pertalian darah atau keturunan nenek moyang yang sama." },
+      { word: "RIBA", desc: "Praktek penetapan bunga pinjaman berlipat ganda yang sangat mencekik dan memeras rakyat miskin/berhutang." },
+      { word: "MAISIR", desc: "Praktek perjudian yang marak dilakukan masyarakat Jahiliyah sebagai ajang spekulasi dan pencarian kekayaan instan." },
+      { word: "MONOPOLI", desc: "Penguasaan jalur dan komoditas pasar secara sepihak oleh para elit bangsawan Quraisy demi mengeruk keuntungan." },
+      { word: "DINAR", desc: "Mata uang emas asal Romawi yang digunakan masyarakat Makkah untuk transaksi bernilai tinggi." },
+      { word: "DIRHAM", desc: "Mata uang perak asal Persia yang digunakan masyarakat Makkah untuk transaksi bernilai sedang/sehari-hari." },
+      { word: "SYAM", desc: "Kawasan utara (sekarang Suriah, Palestina, Yordania) yang menjadi tujuan rute perdagangan musim panas suku Quraisy." },
+      { word: "YAMAN", desc: "Kawasan selatan yang menjadi tujuan rute perdagangan musim dingin suku Quraisy." },
+      { word: "QURAISY", desc: "Suku bangsawan terpandang dan paling berkuasa di Makkah yang memegang kendali atas Ka'bah dan perdagangan." },
+      { word: "DARUNNADWAH", desc: "Gedung/parlemen tempat berkumpulnya para pemuka suku Quraisy untuk bermusyawarah dan membuat keputusan politik." },
+      { word: "MALA", desc: "Dewan permusyawaratan elit yang terdiri dari para kepala suku/kabilah untuk mengatur hukum di kota Makkah." },
+      { word: "FIJAR", desc: "Perang antar-suku yang melanggar keagungan bulan-bulan haram dan tempat suci di Makkah pra-Islam." },
+      { word: "KABAH", desc: "Bangunan suci peninggalan Nabi Ibrahim AS dan Nabi Ismail AS yang disalahgunakan menjadi pusat penempatan 360 berhala." }
+    ];
+    const GRID_SIZE = 18;
+    let grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(''));
+    let wordLocations = {};
+    let foundWords = new Set();
+    let historyStack = [];
+    let selectedCells = [];
+    let score = 0;
+    let activeWord = null;
+    let currentStudent = '';
+    let adminKey = '';
+    let hintLevel = 1;
+    let explanationDraft = '';
+
+    const DIRECTIONS = [[0,1],[1,0],[1,1]];
+    const qs = new URLSearchParams(location.search);
+    const isAdminMode = qs.get('admin') === '1';
+
+    function escapeHtml(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+    function show(el) { el.classList.remove('hidden'); }
+    function hide(el) { el.classList.add('hidden'); }
+    function getWebAppUrl() { return (localStorage.getItem('game-webapp-url') || CONFIG.WEB_APP_URL || '').trim(); }
+
+    function initApp() {
+      document.title = isAdminMode ? 'Panel Guru — Makkah Before Islam' : 'Makkah Before Islam: The Hidden Reality';
+      if (isAdminMode) {
+        hide(document.getElementById('studentLogin'));
+        hide(document.getElementById('studentApp'));
+        show(document.getElementById('adminLogin'));
+      } else {
+        show(document.getElementById('studentLogin'));
+        hide(document.getElementById('adminLogin'));
+        hide(document.getElementById('adminApp'));
+        hide(document.getElementById('studentApp'));
+      }
+    }
+
+    async function startStudent() {
+      const name = document.getElementById('studentName').value.trim();
+      if (!name) {
+        alert('Masukkan nama/username terlebih dahulu.');
+        return;
+      }
+      currentStudent = name;
+      localStorage.setItem('game-student-name', currentStudent);
+      document.getElementById('studentNameDisplay').textContent = currentStudent;
+      hide(document.getElementById('studentLogin'));
+      show(document.getElementById('studentApp'));
+      initGame();
+      await loadStudentProgress();
+    }
+
+    function changeStudent() {
+      localStorage.removeItem('game-student-name');
+      location.href = location.pathname;
+    }
+
+    async function loadStudentProgress() {
+      const url = getWebAppUrl();
+      if (!url || !currentStudent) return;
+      try {
+        const res = await fetch(url + '?action=student&name=' + encodeURIComponent(currentStudent));
+        const data = await res.json();
+        if (!data.ok || !data.student) return;
+        foundWords = new Set(data.student.foundWords || []);
+        score = Number(data.student.score || 0);
+        hintLevel = Math.max(1, foundWords.size + 1);
+        historyStack = wordData.filter(w => foundWords.has(w.word));
+        activeWord = historyStack.length ? historyStack[historyStack.length - 1] : null;
+        document.getElementById('found-count').textContent = foundWords.size;
+        document.getElementById('total-score').textContent = score;
+        updateGridHighlights();
+        renderSidebar();
+        updateControls();
+      } catch (e) {
+        // Tetap bisa bermain offline/local.
+      }
+    }
+
+    // ================= GAME =================
+    function initGame() {
+      grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(''));
+      wordLocations = {};
+      selectedCells = [];
+      if (!foundWords.size) {
+        historyStack = [];
+        score = 0;
+        activeWord = null;
+        hintLevel = 1;
+      }
+      placeWords();
+      fillRandomLetters();
+      renderGrid();
+      renderSidebar();
+      updateScoreboard();
+      updateControls();
+    }
+
+    function placeWords() {
+      const sortedWords = [...wordData].sort((a,b) => b.word.length - a.word.length);
+      sortedWords.forEach(item => {
+        let placed = false;
+        let attempts = 0;
+        while (!placed && attempts < 500) {
+          attempts++;
+          const dir = DIRECTIONS[Math.floor(Math.random()*DIRECTIONS.length)];
+          const row = Math.floor(Math.random()*GRID_SIZE);
+          const col = Math.floor(Math.random()*GRID_SIZE);
+          if (canPlace(item.word,row,col,dir)) {
+            const cells = [];
+            for (let i=0;i<item.word.length;i++) {
+              const r=row+dir[0]*i, c=col+dir[1]*i;
+              grid[r][c]=item.word[i]; cells.push({r,c});
+            }
+            wordLocations[item.word]=cells;
+            placed=true;
+          }
+        }
+      });
+    }
+
+    function canPlace(word,row,col,dir) {
+      for (let i=0;i<word.length;i++) {
+        const r=row+dir[0]*i, c=col+dir[1]*i;
+        if (r<0||c<0||r>=GRID_SIZE||c>=GRID_SIZE) return false;
+        if (grid[r][c]!=='' && grid[r][c]!==word[i]) return false;
+      }
+      return true;
+    }
+
+    function fillRandomLetters() {
+      const alphabet='ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      for(let r=0;r<GRID_SIZE;r++) for(let c=0;c<GRID_SIZE;c++)
+        if(grid[r][c]==='') grid[r][c]=alphabet[Math.floor(Math.random()*alphabet.length)];
+    }
+
+    function renderGrid() {
+      const gridEl=document.getElementById('word-grid'); gridEl.innerHTML='';
+      for(let r=0;r<GRID_SIZE;r++) for(let c=0;c<GRID_SIZE;c++) {
+        const cell=document.createElement('div');
+        cell.className='cell'; cell.innerText=grid[r][c];
+        cell.dataset.row=r; cell.dataset.col=c;
+        cell.onclick=()=>handleCellClick(r,c,cell);
+        gridEl.appendChild(cell);
+      }
+      updateGridHighlights();
+    }
+
+    function updateGridHighlights() {
+      document.querySelectorAll('.cell').forEach(cell=>cell.classList.remove('found'));
+      foundWords.forEach(word=>{
+        const locs=wordLocations[word];
+        if(!locs) return;
+        locs.forEach(coord=>{
+          const el=document.querySelector(`.cell[data-row='${coord.r}'][data-col='${coord.c}']`);
+          if(el) el.classList.add('found');
+        });
+      });
+    }
+
+    function maskedWord(word) {
+      if (foundWords.has(word)) return word;
+      const revealCount = Math.min(word.length, hintLevel);
+      return word.slice(0,revealCount) + '•'.repeat(Math.max(0,word.length-revealCount));
+    }
+
+    function renderSidebar() {
+      const listEl=document.getElementById('word-list'); listEl.innerHTML='';
+      wordData.forEach(item=>{
+        const div=document.createElement('div');
+        const solved=foundWords.has(item.word);
+        div.className='word-item ' + (solved?'found':'');
+        div.id='word-'+item.word;
+        div.innerHTML=`<span>${escapeHtml(maskedWord(item.word))}</span><small>${solved?'✓ +5':''}</small>`;
+        listEl.appendChild(div);
+      });
+      document.getElementById('hint-level').textContent = hintLevel;
+    }
+
+    function handleCellClick(r,c,cellEl) {
+      if(foundWords.size===wordData.length) return;
+      if(selectedCells.length===0) { selectedCells.push({r,c,el:cellEl}); cellEl.classList.add('selected'); return; }
+      const start=selectedCells[0], end={r,c,el:cellEl};
+      checkSelection(start,end);
+      start.el.classList.remove('selected'); selectedCells=[];
+    }
+
+    function checkSelection(start,end) {
+      for(const item of wordData) {
+        if(foundWords.has(item.word)) continue;
+        const locs=wordLocations[item.word]; if(!locs) continue;
+        const first=locs[0], last=locs[locs.length-1];
+        const forward=start.r===first.r&&start.c===first.c&&end.r===last.r&&end.c===last.c;
+        const backward=start.r===last.r&&start.c===last.c&&end.r===first.r&&end.c===first.c;
+        if(forward||backward) { triggerFoundWord(item); return; }
+      }
+      flashMessage('Belum tepat. Coba lagi.');
+    }
+
+    async function triggerFoundWord(item) {
+      foundWords.add(item.word);
+      historyStack.push(item);
+      activeWord=item;
+      score += 5;
+      hintLevel = Math.min(30, foundWords.size + 1);
+      updateScoreboard();
+      updateGridHighlights();
+      renderSidebar();
+      updateControls();
+      localStorage.setItem(localKey('found'), JSON.stringify([...foundWords]));
+      localStorage.setItem(localKey('score'), String(score));
+      openExplanationModal(item);
+      await submitAnswerToServer(item.word);
+    }
+
+    async function submitAnswerToServer(word) {
+      const url=getWebAppUrl();
+      if(!url||!currentStudent) return;
+      const payload={action:'submitAnswer', name:currentStudent, word, basePoints:5};
+      try {
+        const res=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+        const data=await res.json();
+        if(data.ok && data.student) {
+          score=Number(data.student.score||score);
+          document.getElementById('total-score').textContent=score;
+          localStorage.setItem(localKey('score'), String(score));
+        }
+      } catch(e) {
+        flashMessage('Koneksi guru belum tersedia. Data tetap tersimpan di perangkat ini.');
+      }
+    }
+
+    function openExplanationModal(item) {
+      document.getElementById('explain-word').textContent=item.word;
+      document.getElementById('explanationInput').value='';
+      document.getElementById('modal').classList.add('active');
+      document.getElementById('explanationInput').focus();
+    }
+
+    async function saveExplanation() {
+      const text=document.getElementById('explanationInput').value.trim();
+      if(!activeWord) return;
+      if(!text) { alert('Tulis penjelasan terlebih dahulu.'); return; }
+      const word=activeWord.word;
+      localStorage.setItem(localKey('explain:'+word), text);
+      const url=getWebAppUrl();
+      if(url && currentStudent) {
+        try {
+          const res=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'saveExplanation',name:currentStudent,word,explanation:text})});
+          const data=await res.json();
+          if(!data.ok) flashMessage('Penjelasan disimpan lokal; sinkronisasi guru gagal.');
+        } catch(e) { flashMessage('Penjelasan disimpan lokal; sinkronisasi guru gagal.'); }
+      }
+      closeModal();
+    }
+
+    function closeModal() { document.getElementById('modal').classList.remove('active'); }
+
+    function updateScoreboard() {
+      document.getElementById('found-count').textContent=foundWords.size;
+      document.getElementById('total-score').textContent=score;
+    }
+
+    function updateControls() {
+      const btn=document.getElementById('btn-undo');
+      btn.disabled=true; btn.classList.remove('active');
+      btn.innerHTML='✅ Mode belajar: jawaban benar bernilai +5';
+    }
+
+    function flashMessage(msg) {
+      const el=document.getElementById('flashMessage'); el.textContent=msg; el.classList.add('show');
+      setTimeout(()=>el.classList.remove('show'),2600);
+    }
+
+    function localKey(k) {
+      const safe=currentStudent.replace(/[^a-zA-Z0-9_-]/g,'_');
+      return 'makkah-game:'+safe+':'+k;
+    }
+
+    // ================= ADMIN =================
+    async function adminLogin() {
+      const key=document.getElementById('adminKey').value.trim();
+      const url=getWebAppUrl();
+      if(!key) { alert('Masukkan kunci admin.'); return; }
+      if(!url) { alert('URL Google Apps Script belum diatur. Isi CONFIG.WEB_APP_URL di file game.'); return; }
+      try {
+        const res=await fetch(url+'?action=adminCheck&key='+encodeURIComponent(key));
+        const data=await res.json();
+        if(!data.ok) { alert(data.message||'Kunci admin salah.'); return; }
+        adminKey=key;
+        sessionStorage.setItem('admin-key',key);
+        hide(document.getElementById('adminLogin'));
+        show(document.getElementById('adminApp'));
+        await loadAdminData();
+      } catch(e) { alert('Gagal terhubung ke server. Pastikan Web App Google Apps Script sudah aktif.'); }
+    }
+
+    function adminLogout() {
+      sessionStorage.removeItem('admin-key');
+      location.href=location.pathname;
+    }
+
+    async function loadAdminData() {
+      const url=getWebAppUrl(); if(!url||!adminKey) return;
+      const status=document.getElementById('adminStatus');
+      status.textContent='Memuat data siswa…';
+      try {
+        const res=await fetch(url+'?action=adminStudents&key='+encodeURIComponent(adminKey));
+        const data=await res.json();
+        if(!data.ok) throw new Error(data.message||'Gagal memuat');
+        renderAdminTable(data.students||[]);
+        status.textContent='Diperbarui: '+new Date().toLocaleTimeString('id-ID');
+      } catch(e) {
+        status.textContent='Gagal memuat data: '+e.message;
+      }
+    }
+
+    function renderAdminTable(students) {
+      const wrap=document.getElementById('adminTableWrap');
+      if(!students.length) { wrap.innerHTML='<div class="admin-empty">Belum ada siswa yang mengerjakan.</div>'; return; }
+      wrap.innerHTML=`<div class="admin-table-wrap"><table class="admin-table"><thead><tr>
+        <th>No</th><th>Nama / Username</th><th>Jawaban Benar</th><th>Skor</th><th>Tambah Skor Guru</th><th>Terakhir Aktif</th>
+      </tr></thead><tbody>
+      ${students.map((s,i)=>`<tr>
+        <td>${i+1}</td>
+        <td><strong>${escapeHtml(s.name)}</strong></td>
+        <td>${Number(s.foundCount||0)} / ${wordData.length}</td>
+        <td class="score-big">${Number(s.score||0)}</td>
+        <td><div class="award-row">
+          <button class="award-btn award-3" onclick="awardScore('${encodeURIComponent(s.name)}',3)">+3</button>
+          <button class="award-btn award-5" onclick="awardScore('${encodeURIComponent(s.name)}',5)">+5</button>
+        </div></td>
+        <td>${escapeHtml(s.lastActive||'-')}</td>
+      </tr>`).join('')}
+      </tbody></table></div>`;
+    }
+
+    async function awardScore(encodedName,points) {
+      const name=decodeURIComponent(encodedName), url=getWebAppUrl();
+      if(!url||!adminKey) return;
+      try {
+        const res=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'awardPoints',key:adminKey,name,points})});
+        const data=await res.json();
+        if(!data.ok) throw new Error(data.message||'Gagal');
+        await loadAdminData();
+      } catch(e) { alert('Gagal menambah skor: '+e.message); }
+    }
+
+    async function saveServerUrl() {
+      const url=document.getElementById('serverUrlInput').value.trim();
+      localStorage.setItem('game-webapp-url',url);
+      flashMessage('URL server tersimpan di perangkat ini.');
+    }
+
+    function loadSavedUrl() {
+      const input=document.getElementById('serverUrlInput');
+      if(input) input.value=getWebAppUrl();
+    }
+
+    window.addEventListener('load', async ()=>{
+      loadSavedUrl();
+      const savedAdminKey=sessionStorage.getItem('admin-key');
+      if(isAdminMode && savedAdminKey) {
+        adminKey=savedAdminKey;
+        hide(document.getElementById('adminLogin'));
+        show(document.getElementById('adminApp'));
+        await loadAdminData();
+      } else if(!isAdminMode) {
+        const remembered=localStorage.getItem('game-student-name');
+        if(remembered) document.getElementById('studentName').value=remembered;
+      }
+    });
+
+    initApp();
+</script>
+</body>
+</html>
