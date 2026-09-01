@@ -557,10 +557,10 @@
 <script>
     // ================= KONFIGURASI =================
     // Setelah membuat Google Apps Script Web App, isi URL di bawah.
-    // Biarkan kosong bila ingin menguji game secara lokal tanpa dashboard online.
+    // Isi dengan URL Web App Google Apps Script berakhiran /exec. Untuk GitHub Pages, versi ini memakai JSONP agar tidak terkena CORS.
     const CONFIG = {
       WEB_APP_URL: "https://script.google.com/macros/s/AKfycbz3E1O3g9pNYSgEveZ5IF3oHECOtqCuMNyH68WDyzrhbP-bYfxWAcXAekdwvuLQBUD47g/exec",
-      APP_VERSION: "2.0"
+      APP_VERSION: "2.1-JSONP"
     };
 
     const wordData = [
@@ -619,6 +619,28 @@
     function hide(el) { el.classList.add('hidden'); }
     function getWebAppUrl() { return (localStorage.getItem('game-webapp-url') || CONFIG.WEB_APP_URL || '').trim(); }
 
+    // GitHub Pages -> Google Apps Script: gunakan JSONP agar tidak terkena CORS.
+    function jsonpRequest(params, timeoutMs = 12000) {
+      return new Promise((resolve, reject) => {
+        const url = getWebAppUrl();
+        if (!url) return reject(new Error('URL Web App belum diatur.'));
+        const callbackName = '__gameJsonp_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+        const script = document.createElement('script');
+        const query = new URLSearchParams({ ...params, callback: callbackName }).toString();
+        let timer = null;
+        const cleanup = () => {
+          if (timer) clearTimeout(timer);
+          try { delete window[callbackName]; } catch (_) {}
+          script.remove();
+        };
+        window[callbackName] = (data) => { cleanup(); resolve(data); };
+        script.onerror = () => { cleanup(); reject(new Error('Request JSONP gagal.')); };
+        timer = setTimeout(() => { cleanup(); reject(new Error('Request timeout.')); }, timeoutMs);
+        script.src = url + (url.includes('?') ? '&' : '?') + query;
+        document.head.appendChild(script);
+      });
+    }
+
     function initApp() {
       document.title = isAdminMode ? 'Panel Guru — Makkah Before Islam' : 'Makkah Before Islam: The Hidden Reality';
       if (isAdminMode) {
@@ -657,8 +679,7 @@
       const url = getWebAppUrl();
       if (!url || !currentStudent) return;
       try {
-        const res = await fetch(url + '?action=student&name=' + encodeURIComponent(currentStudent));
-        const data = await res.json();
+        const data = await jsonpRequest({action:'student', name:currentStudent});
         if (!data.ok || !data.student) return;
         foundWords = new Set(data.student.foundWords || []);
         score = Number(data.student.score || 0);
@@ -816,8 +837,7 @@
       if(!url||!currentStudent) return;
       const payload={action:'submitAnswer', name:currentStudent, word, basePoints:5};
       try {
-        const res=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-        const data=await res.json();
+        const data = await jsonpRequest(payload);
         if(data.ok && data.student) {
           score=Number(data.student.score||score);
           document.getElementById('total-score').textContent=score;
@@ -844,8 +864,7 @@
       const url=getWebAppUrl();
       if(url && currentStudent) {
         try {
-          const res=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'saveExplanation',name:currentStudent,word,explanation:text})});
-          const data=await res.json();
+          const data = await jsonpRequest({action:'saveExplanation',name:currentStudent,word,explanation:text});
           if(!data.ok) flashMessage('Penjelasan disimpan lokal; sinkronisasi guru gagal.');
         } catch(e) { flashMessage('Penjelasan disimpan lokal; sinkronisasi guru gagal.'); }
       }
@@ -882,8 +901,7 @@
       if(!key) { alert('Masukkan kunci admin.'); return; }
       if(!url) { alert('URL Google Apps Script belum diatur. Isi CONFIG.WEB_APP_URL di file game.'); return; }
       try {
-        const res=await fetch(url+'?action=adminCheck&key='+encodeURIComponent(key));
-        const data=await res.json();
+        const data = await jsonpRequest({action:'adminCheck', key});
         if(!data.ok) { alert(data.message||'Kunci admin salah.'); return; }
         adminKey=key;
         sessionStorage.setItem('admin-key',key);
@@ -903,8 +921,7 @@
       const status=document.getElementById('adminStatus');
       status.textContent='Memuat data siswa…';
       try {
-        const res=await fetch(url+'?action=adminStudents&key='+encodeURIComponent(adminKey));
-        const data=await res.json();
+        const data = await jsonpRequest({action:'adminStudents', key:adminKey});
         if(!data.ok) throw new Error(data.message||'Gagal memuat');
         renderAdminTable(data.students||[]);
         status.textContent='Diperbarui: '+new Date().toLocaleTimeString('id-ID');
@@ -937,8 +954,7 @@
       const name=decodeURIComponent(encodedName), url=getWebAppUrl();
       if(!url||!adminKey) return;
       try {
-        const res=await fetch(url,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'awardPoints',key:adminKey,name,points})});
-        const data=await res.json();
+        const data = await jsonpRequest({action:'awardPoints',key:adminKey,name,points});
         if(!data.ok) throw new Error(data.message||'Gagal');
         await loadAdminData();
       } catch(e) { alert('Gagal menambah skor: '+e.message); }
