@@ -408,16 +408,22 @@
       background:#334155; border:1px solid var(--grid-border); color:#cbd5e1; padding:5px 10px; border-radius:999px; font-size:.82rem;
     }
 
-    .explain-card {
-      background:#0f172a; border:1px solid var(--grid-border); border-radius:12px; padding:16px; text-align:left; margin:12px 0 18px;
+    .question-card {
+      background:#0f172a; border:1px solid var(--grid-border); border-radius:12px; padding:18px; text-align:left; margin:12px 0 18px;
     }
-    .explain-card label { display:block; color:#cbd5e1; font-weight:700; margin-bottom:8px; }
-    .explain-card textarea {
-      width:100%; min-height:120px; resize:vertical; border:1px solid var(--grid-border); border-radius:10px;
-      background:#111827; color:#fff; padding:12px; font-size:1rem; line-height:1.5; outline:none;
+    .question-card .statement {
+      font-size:1.12rem; line-height:1.7; color:#f8fafc; padding:16px; border-radius:10px;
+      background:#111827; border:1px solid var(--grid-border);
     }
-    .explain-card textarea:focus { border-color:var(--accent-gold); }
-    .explain-help { color:#94a3b8; font-size:.84rem; margin-top:6px; }
+    .question-help { color:#94a3b8; font-size:.84rem; margin-top:8px; }
+    .tf-actions { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px; }
+    .tf-btn { border:none; border-radius:10px; padding:13px 16px; font-size:1.05rem; font-weight:800; cursor:pointer; }
+    .tf-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .tf-true { background:#10b981; color:#052e16; }
+    .tf-false { background:#ef4444; color:#fff; }
+    .completion-card { max-width:620px; }
+    .completion-score { font-size:3.5rem; color:var(--accent-gold); font-weight:900; margin:12px 0; }
+    .completion-sub { color:#cbd5e1; line-height:1.6; }
     .modal-card.wide { max-width:760px; }
 
     /* Admin dashboard */
@@ -431,7 +437,7 @@
     .admin-meta { color:#94a3b8; font-size:.9rem; }
     .admin-actions { display:flex; gap:8px; flex-wrap:wrap; }
     .admin-table-wrap { overflow:auto; border:1px solid var(--grid-border); border-radius:12px; }
-    table.admin-table { width:100%; border-collapse:collapse; min-width:820px; background:#0f172a; }
+    table.admin-table { width:100%; border-collapse:collapse; min-width:1080px; background:#0f172a; }
     .admin-table th, .admin-table td { padding:10px 12px; border-bottom:1px solid var(--grid-border); text-align:left; }
     .admin-table th { color:var(--accent-gold); background:#172033; font-size:.85rem; text-transform:uppercase; letter-spacing:.04em; }
     .admin-table td { color:#e2e8f0; font-size:.92rem; }
@@ -441,6 +447,8 @@
     .award-3 { background:#38bdf8; color:#082f49; }
     .award-5 { background:#f59e0b; color:#451a03; }
     .award-btn:disabled { opacity:.45; cursor:not-allowed; }
+    .admin-danger { background:#7f1d1d; color:#fecaca; border:1px solid #ef4444; border-radius:7px; padding:7px 10px; font-weight:800; cursor:pointer; }
+    .admin-reset { background:#78350f; color:#fef3c7; border:1px solid #f59e0b; border-radius:7px; padding:7px 10px; font-weight:800; cursor:pointer; }
     .admin-empty { padding:30px; text-align:center; color:#94a3b8; }
     .admin-status { font-family:monospace; font-size:.8rem; color:#94a3b8; margin-top:8px; }
 
@@ -460,7 +468,7 @@
       <p><strong>Makkah Before Islam: The Hidden Reality</strong><br>Masukkan nama/username sebelum mulai. Gunakan nama yang mudah dikenali oleh guru.</p>
       <input id="studentName" type="text" maxlength="60" placeholder="Nama / Username" onkeydown="if(event.key==='Enter') startStudent()">
       <div class="login-row"><button class="btn-primary" onclick="startStudent()">Mulai Game</button></div>
-      <p class="hint-text">Setelah menemukan kata yang benar, kamu mendapat <strong>5 poin</strong> dan harus menuliskan penjelasannya.</p>
+      <p class="hint-text">Menemukan kata yang benar = <strong>6 poin</strong>. Menjawab Benar/Salah dengan tepat = <strong>4 poin</strong>.</p>
     </div>
   </div>
 
@@ -492,7 +500,7 @@
           <div class="progress-chip">Petunjuk: <span id="hint-level">1</span> huruf</div>
         </div>
         <div class="action-buttons">
-          <button id="btn-undo" class="btn-action btn-undo" disabled>✅ Mode belajar: jawaban benar bernilai +5</button>
+          <button id="btn-undo" class="btn-action btn-undo" disabled>🎯 Menemukan kata = +6 · Tepat menjawab = +4</button>
         </div>
       </div>
       <div class="student-note">🔎 <strong>Petunjuk kata:</strong> setiap kata yang belum ditemukan hanya menampilkan sebagian huruf. Semakin banyak jawaban benar, semakin banyak huruf petunjuk yang terbuka.</div>
@@ -507,17 +515,31 @@
     </div>
   </div>
 
-  <!-- MODAL PENJELASAN SISWA -->
+  <!-- MODAL PERNYATAAN BENAR / SALAH -->
   <div class="modal-overlay" id="modal">
     <div class="modal-card wide">
-      <div class="modal-badge">Jawaban Benar · +5 Poin</div>
-      <h2 class="modal-title" id="explain-word">JAHILIYAH</h2>
-      <div class="explain-card">
-        <label for="explanationInput">Jelaskan arti / makna kata tersebut dengan bahasamu sendiri.</label>
-        <textarea id="explanationInput" placeholder="Tuliskan penjelasanmu di sini…"></textarea>
-        <div class="explain-help">Jawaban penjelasan ini akan tersimpan dan dapat dilihat oleh guru/admin.</div>
+      <div class="modal-badge">Kata Ditemukan · +6 Poin</div>
+      <h2 class="modal-title" id="question-word">JAHILIYAH</h2>
+      <div class="question-card">
+        <div style="font-size:.9rem;color:var(--accent-gold);font-weight:800;margin-bottom:8px">PERNYATAAN</div>
+        <div class="statement" id="question-statement">Pernyataan akan muncul di sini.</div>
+        <div class="question-help">Berdasarkan materi yang kamu pelajari, apakah pernyataan di atas benar atau salah?</div>
+        <div class="tf-actions">
+          <button class="tf-btn tf-true" id="btnTrue" onclick="answerTrueFalse(true)">✓ BENAR</button>
+          <button class="tf-btn tf-false" id="btnFalse" onclick="answerTrueFalse(false)">✕ SALAH</button>
+        </div>
       </div>
-      <button class="btn-close" onclick="saveExplanation()">💾 Simpan Penjelasan &amp; Lanjut ➔</button>
+    </div>
+  </div>
+
+  <!-- MODAL SELESAI -->
+  <div class="modal-overlay" id="completionModal">
+    <div class="modal-card completion-card">
+      <div class="modal-badge">Permainan Selesai 🎉</div>
+      <h2 class="modal-title">Semua kata telah ditemukan</h2>
+      <div class="completion-score" id="completionScore">0</div>
+      <div class="completion-sub">Itu adalah <strong>total skor</strong> kamu dari menemukan kata dan menjawab semua pernyataan. Nilai akhir ditentukan oleh guru.</div>
+      <button class="btn-close" style="margin-top:20px" onclick="closeCompletionModal()">Kembali ke Game ➔</button>
     </div>
   </div>
 
@@ -560,40 +582,40 @@
     // Isi dengan URL Web App Google Apps Script berakhiran /exec. Untuk GitHub Pages, versi ini memakai JSONP agar tidak terkena CORS.
     const CONFIG = {
       WEB_APP_URL: "https://script.google.com/macros/s/AKfycbz3E1O3g9pNYSgEveZ5IF3oHECOtqCuMNyH68WDyzrhbP-bYfxWAcXAekdwvuLQBUD47g/exec",
-      APP_VERSION: "2.1-JSONP"
+      APP_VERSION: "2.2-TF"
     };
 
     const wordData = [
-      { word: "JAHILIYAH", desc: "Masa 'kebodohan' moral dan aqidah masyarakat Makkah pra-Islam. Bukan bodoh secara akal/sains, melainkan tersesat dari ajaran tauhid dan keadilan sosial." },
-      { word: "HUBAL", desc: "Berhala terbesar berbahan batu akik merah yang diletakkan di dalam Ka'bah dan dijadikan sesembahan utama suku Quraisy." },
-      { word: "LATA", desc: "Berhala dalam bentuk batu putih berukir yang disembah dan disakralkan oleh masyarakat Makkah dan Thaqif di Kota Thaqif." },
-      { word: "UZZA", desc: "Berhala berbentuk pohon/bangunan sakral di Lembah Nakhlah yang dianggap berhala paling perkasa oleh suku Quraisy." },
-      { word: "MANAT", desc: "Berhala tertua yang dipuja oleh masyarakat Makkah dan Madinah pra-Islam di kawasan Qudaid." },
-      { word: "BERHALA", desc: "Patung atau objek buatan manusia yang dijadikan tandingan dan perantara untuk menyembah Allah SWT." },
-      { word: "MUSYRIK", desc: "Sebutan untuk orang yang menyekutukan Allah SWT dengan menyembah berhala atau benda lain." },
-      { word: "AZLAM", desc: "Anak panah tanpa bulu yang digunakan masyarakat Jahiliyah untuk mengocok nasib/keputusan di depan berhala." },
-      { word: "TAKHAYUL", desc: "Kepercayaan irasional pada hal-hal mistis yang tidak berdasar ilmu pengetahuan maupun ajaran agama murni." },
-      { word: "HANIF", desc: "Sikap/ajaran tauhid murni peninggalan Nabi Ibrahim AS yang masih dipegang oleh segelintir orang Makkah sebelum Islam." },
-      { word: "ASABIYAH", desc: "Sikap fanatisme suku atau kelompok yang buta; wajib membela anggota sukunya baik dalam posisi benar maupun salah." },
-      { word: "KABILAH", desc: "Suku atau kelompok kekerabatan besar berdasarkan garis keturunan yang menjadi struktur masyarakat utama di Arab." },
-      { word: "PERBUDAKAN", desc: "Sistem sosial diskriminatif yang memandang manusia sebagai barang dagangan tanpa hak-hak kemanusiaan." },
-      { word: "PASARUKAZ", desc: "Pusat perdagangan sekaligus panggung festival budaya dan kompetisi membaca syair paling bergengsi di Makkah." },
-      { word: "SYAIR", desc: "Puisi atau karya sastra tinggi yang dijadikan kebanggaan, tolok ukur kehormatan, dan alat propaganda antar-suku." },
-      { word: "WADULBANAT", desc: "Tradisi kejam mengubur bayi perempuan hidup-hidup karena dianggap membawa aib dan kemiskinan bagi kabilah." },
-      { word: "KASTA", desc: "Pemisahan derajat sosial yang tajam antara elit bangsawan kaya dan rakyat biasa/budak." },
-      { word: "SUKU", desc: "Tatanan ikatan sosial masyarakat Makkah yang terikat oleh pertalian darah atau keturunan nenek moyang yang sama." },
-      { word: "RIBA", desc: "Praktek penetapan bunga pinjaman berlipat ganda yang sangat mencekik dan memeras rakyat miskin/berhutang." },
-      { word: "MAISIR", desc: "Praktek perjudian yang marak dilakukan masyarakat Jahiliyah sebagai ajang spekulasi dan pencarian kekayaan instan." },
-      { word: "MONOPOLI", desc: "Penguasaan jalur dan komoditas pasar secara sepihak oleh para elit bangsawan Quraisy demi mengeruk keuntungan." },
-      { word: "DINAR", desc: "Mata uang emas asal Romawi yang digunakan masyarakat Makkah untuk transaksi bernilai tinggi." },
-      { word: "DIRHAM", desc: "Mata uang perak asal Persia yang digunakan masyarakat Makkah untuk transaksi bernilai sedang/sehari-hari." },
-      { word: "SYAM", desc: "Kawasan utara (sekarang Suriah, Palestina, Yordania) yang menjadi tujuan rute perdagangan musim panas suku Quraisy." },
-      { word: "YAMAN", desc: "Kawasan selatan yang menjadi tujuan rute perdagangan musim dingin suku Quraisy." },
-      { word: "QURAISY", desc: "Suku bangsawan terpandang dan paling berkuasa di Makkah yang memegang kendali atas Ka'bah dan perdagangan." },
-      { word: "DARUNNADWAH", desc: "Gedung/parlemen tempat berkumpulnya para pemuka suku Quraisy untuk bermusyawarah dan membuat keputusan politik." },
-      { word: "MALA", desc: "Dewan permusyawaratan elit yang terdiri dari para kepala suku/kabilah untuk mengatur hukum di kota Makkah." },
-      { word: "FIJAR", desc: "Perang antar-suku yang melanggar keagungan bulan-bulan haram dan tempat suci di Makkah pra-Islam." },
-      { word: "KABAH", desc: "Bangunan suci peninggalan Nabi Ibrahim AS dan Nabi Ismail AS yang disalahgunakan menjadi pusat penempatan 360 berhala." }
+      { word: "JAHILIYAH", desc: "Masa 'kebodohan' moral dan aqidah masyarakat Makkah pra-Islam. Bukan bodoh secara akal/sains, melainkan tersesat dari ajaran tauhid dan keadilan sosial." , statement: "Jahiliyah merujuk pada masa ketika masyarakat Makkah mengalami kebodohan moral dan aqidah, bukan berarti mereka bodoh dalam akal atau sains." },
+      { word: "HUBAL", desc: "Berhala terbesar berbahan batu akik merah yang diletakkan di dalam Ka'bah dan dijadikan sesembahan utama suku Quraisy." , statement: "Hubal adalah berhala terbesar yang disebut berbahan batu akik merah dan dijadikan sesembahan utama suku Quraisy." },
+      { word: "LATA", desc: "Berhala dalam bentuk batu putih berukir yang disembah dan disakralkan oleh masyarakat Makkah dan Thaqif di Kota Thaqif." , statement: "Lata adalah berhala berbentuk pohon sakral yang berada di Lembah Nakhlah dan dianggap paling perkasa oleh Quraisy." },
+      { word: "UZZA", desc: "Berhala berbentuk pohon/bangunan sakral di Lembah Nakhlah yang dianggap berhala paling perkasa oleh suku Quraisy." , statement: "Uzza dikaitkan dengan pohon atau bangunan sakral di Lembah Nakhlah dan dianggap berhala yang sangat perkasa oleh Quraisy." },
+      { word: "MANAT", desc: "Berhala tertua yang dipuja oleh masyarakat Makkah dan Madinah pra-Islam di kawasan Qudaid." , statement: "Manat disebut sebagai berhala tertua yang dipuja masyarakat Makkah dan Madinah pra-Islam di kawasan Qudaid." },
+      { word: "BERHALA", desc: "Patung atau objek buatan manusia yang dijadikan tandingan dan perantara untuk menyembah Allah SWT." , statement: "Berhala adalah patung atau objek buatan manusia yang dijadikan tandingan atau perantara dalam penyembahan kepada Allah." },
+      { word: "MUSYRIK", desc: "Sebutan untuk orang yang menyekutukan Allah SWT dengan menyembah berhala atau benda lain." , statement: "Musyrik adalah sebutan bagi orang yang hanya menyembah Allah dan tidak menyekutukan-Nya dengan apa pun." },
+      { word: "AZLAM", desc: "Anak panah tanpa bulu yang digunakan masyarakat Jahiliyah untuk mengocok nasib/keputusan di depan berhala." , statement: "Azlam adalah anak panah tanpa bulu yang digunakan untuk mengundi nasib atau mengambil keputusan di depan berhala." },
+      { word: "TAKHAYUL", desc: "Kepercayaan irasional pada hal-hal mistis yang tidak berdasar ilmu pengetahuan maupun ajaran agama murni." , statement: "Takhayul adalah kepercayaan irasional pada hal-hal mistis yang tidak berdasar pada ilmu pengetahuan maupun ajaran agama murni." },
+      { word: "HANIF", desc: "Sikap/ajaran tauhid murni peninggalan Nabi Ibrahim AS yang masih dipegang oleh segelintir orang Makkah sebelum Islam." , statement: "Hanif merujuk pada sikap atau ajaran tauhid murni peninggalan Nabi Ibrahim AS yang masih dipegang sebagian orang sebelum Islam." },
+      { word: "ASABIYAH", desc: "Sikap fanatisme suku atau kelompok yang buta; wajib membela anggota sukunya baik dalam posisi benar maupun salah." , statement: "Asabiyah adalah fanatisme suku atau kelompok yang membela anggota kelompoknya secara buta, baik benar maupun salah." },
+      { word: "KABILAH", desc: "Suku atau kelompok kekerabatan besar berdasarkan garis keturunan yang menjadi struktur masyarakat utama di Arab." , statement: "Kabilah adalah kelompok kekerabatan besar berdasarkan garis keturunan yang menjadi struktur utama masyarakat Arab." },
+      { word: "PERBUDAKAN", desc: "Sistem sosial diskriminatif yang memandang manusia sebagai barang dagangan tanpa hak-hak kemanusiaan." , statement: "Perbudakan adalah sistem sosial yang memandang manusia sebagai barang dan menghilangkan hak-hak kemanusiaannya." },
+      { word: "PASARUKAZ", desc: "Pusat perdagangan sekaligus panggung festival budaya dan kompetisi membaca syair paling bergengsi di Makkah." , statement: "Pasar Ukaz merupakan pusat perdagangan yang juga menjadi tempat festival budaya dan kompetisi syair terkenal." },
+      { word: "SYAIR", desc: "Puisi atau karya sastra tinggi yang dijadikan kebanggaan, tolok ukur kehormatan, dan alat propaganda antar-suku." , statement: "Syair adalah karya sastra yang menjadi kebanggaan dan juga dapat digunakan sebagai alat propaganda antar-suku." },
+      { word: "WADULBANAT", desc: "Tradisi kejam mengubur bayi perempuan hidup-hidup karena dianggap membawa aib dan kemiskinan bagi kabilah." , statement: "Wadulbanat merupakan tradisi mengubur bayi laki-laki hidup-hidup karena dianggap membawa aib dan kemiskinan." },
+      { word: "KASTA", desc: "Pemisahan derajat sosial yang tajam antara elit bangsawan kaya dan rakyat biasa/budak." , statement: "Kasta menggambarkan pemisahan derajat sosial yang tajam antara elit bangsawan kaya dan rakyat biasa atau budak." },
+      { word: "SUKU", desc: "Tatanan ikatan sosial masyarakat Makkah yang terikat oleh pertalian darah atau keturunan nenek moyang yang sama." , statement: "Suku merupakan tatanan ikatan sosial masyarakat Makkah yang berdasarkan pertalian darah atau keturunan nenek moyang yang sama." },
+      { word: "RIBA", desc: "Praktek penetapan bunga pinjaman berlipat ganda yang sangat mencekik dan memeras rakyat miskin/berhutang." , statement: "Riba merupakan praktik penetapan bunga pinjaman berlipat ganda yang dapat mencekik dan memeras orang yang berutang." },
+      { word: "MAISIR", desc: "Praktek perjudian yang marak dilakukan masyarakat Jahiliyah sebagai ajang spekulasi dan pencarian kekayaan instan." , statement: "Maisir adalah praktik perjudian yang marak dilakukan masyarakat Jahiliyah untuk spekulasi dan mencari kekayaan instan." },
+      { word: "MONOPOLI", desc: "Penguasaan jalur dan komoditas pasar secara sepihak oleh para elit bangsawan Quraisy demi mengeruk keuntungan." , statement: "Monopoli adalah penguasaan jalur dan komoditas pasar secara sepihak oleh elit untuk memperoleh keuntungan." },
+      { word: "DINAR", desc: "Mata uang emas asal Romawi yang digunakan masyarakat Makkah untuk transaksi bernilai tinggi." , statement: "Dinar adalah mata uang perak asal Persia yang digunakan masyarakat Makkah untuk transaksi sehari-hari." },
+      { word: "DIRHAM", desc: "Mata uang perak asal Persia yang digunakan masyarakat Makkah untuk transaksi bernilai sedang/sehari-hari." , statement: "Dirham adalah mata uang perak asal Persia yang digunakan masyarakat Makkah untuk transaksi bernilai sedang atau sehari-hari." },
+      { word: "SYAM", desc: "Kawasan utara (sekarang Suriah, Palestina, Yordania) yang menjadi tujuan rute perdagangan musim panas suku Quraisy." , statement: "Syam merupakan kawasan selatan yang menjadi tujuan rute perdagangan musim dingin suku Quraisy." },
+      { word: "YAMAN", desc: "Kawasan selatan yang menjadi tujuan rute perdagangan musim dingin suku Quraisy." , statement: "Yaman merupakan kawasan selatan yang menjadi tujuan rute perdagangan musim dingin suku Quraisy." },
+      { word: "QURAISY", desc: "Suku bangsawan terpandang dan paling berkuasa di Makkah yang memegang kendali atas Ka'bah dan perdagangan." , statement: "Quraisy adalah suku terpandang dan berkuasa di Makkah yang memegang kendali atas Ka'bah dan perdagangan." },
+      { word: "DARUNNADWAH", desc: "Gedung/parlemen tempat berkumpulnya para pemuka suku Quraisy untuk bermusyawarah dan membuat keputusan politik." , statement: "Darunnadwah adalah tempat berkumpul para pemuka Quraisy untuk bermusyawarah dan membuat keputusan politik." },
+      { word: "MALA", desc: "Dewan permusyawaratan elit yang terdiri dari para kepala suku/kabilah untuk mengatur hukum di kota Makkah." , statement: "Mala adalah dewan permusyawaratan elit yang terdiri atas para kepala suku atau kabilah untuk mengatur urusan Makkah." },
+      { word: "FIJAR", desc: "Perang antar-suku yang melanggar keagungan bulan-bulan haram dan tempat suci di Makkah pra-Islam." , statement: "Fijar adalah perang antar-suku yang melanggar keagungan bulan-bulan haram dan tempat suci di Makkah." },
+      { word: "KABAH", desc: "Bangunan suci peninggalan Nabi Ibrahim AS dan Nabi Ismail AS yang disalahgunakan menjadi pusat penempatan 360 berhala.", statement: "Ka'bah merupakan bangunan suci peninggalan Nabi Ibrahim AS dan Nabi Ismail AS yang pada masa Jahiliyah menjadi pusat penempatan 360 berhala." }
     ];
     const GRID_SIZE = 18;
     let grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(''));
@@ -606,7 +628,11 @@
     let currentStudent = '';
     let adminKey = '';
     let hintLevel = 1;
-    let explanationDraft = '';
+    let findScore = 0;
+    let tfScore = 0;
+    let teacherBonus = 0;
+    let tfAnswers = {};
+    let questionPending = false;
 
     const DIRECTIONS = [[0,1],[1,0],[1,1]];
     const qs = new URLSearchParams(location.search);
@@ -682,10 +708,15 @@
         const data = await jsonpRequest({action:'student', name:currentStudent});
         if (!data.ok || !data.student) return;
         foundWords = new Set(data.student.foundWords || []);
-        score = Number(data.student.score || 0);
+        findScore = Number(data.student.findScore || (foundWords.size * 6));
+        tfScore = Number(data.student.tfScore || 0);
+        teacherBonus = Number(data.student.teacherBonus || 0);
+        tfAnswers = data.student.tfAnswers || {};
+        score = findScore + tfScore + teacherBonus;
         hintLevel = Math.max(1, foundWords.size + 1);
         historyStack = wordData.filter(w => foundWords.has(w.word));
-        activeWord = historyStack.length ? historyStack[historyStack.length - 1] : null;
+        activeWord = null;
+        questionPending = false;
         document.getElementById('found-count').textContent = foundWords.size;
         document.getElementById('total-score').textContent = score;
         updateGridHighlights();
@@ -704,7 +735,12 @@
       if (!foundWords.size) {
         historyStack = [];
         score = 0;
+        findScore = 0;
+        tfScore = 0;
+        teacherBonus = 0;
+        tfAnswers = {};
         activeWord = null;
+        questionPending = false;
         hintLevel = 1;
       }
       placeWords();
@@ -790,14 +826,14 @@
         const solved=foundWords.has(item.word);
         div.className='word-item ' + (solved?'found':'');
         div.id='word-'+item.word;
-        div.innerHTML=`<span>${escapeHtml(maskedWord(item.word))}</span><small>${solved?'✓ +5':''}</small>`;
+        div.innerHTML=`<span>${escapeHtml(maskedWord(item.word))}</span><small>${solved?'✓ +6':''}</small>`;
         listEl.appendChild(div);
       });
       document.getElementById('hint-level').textContent = hintLevel;
     }
 
     function handleCellClick(r,c,cellEl) {
-      if(foundWords.size===wordData.length) return;
+      if(foundWords.size===wordData.length || questionPending) return;
       if(selectedCells.length===0) { selectedCells.push({r,c,el:cellEl}); cellEl.classList.add('selected'); return; }
       const start=selectedCells[0], end={r,c,el:cellEl};
       checkSelection(start,end);
@@ -817,61 +853,92 @@
     }
 
     async function triggerFoundWord(item) {
+      if(questionPending || foundWords.has(item.word)) return;
       foundWords.add(item.word);
       historyStack.push(item);
       activeWord=item;
-      score += 5;
+      findScore += 6;
+      score = findScore + tfScore + teacherBonus;
       hintLevel = Math.min(30, foundWords.size + 1);
+      questionPending = true;
       updateScoreboard();
       updateGridHighlights();
       renderSidebar();
       updateControls();
       localStorage.setItem(localKey('found'), JSON.stringify([...foundWords]));
-      localStorage.setItem(localKey('score'), String(score));
-      openExplanationModal(item);
-      await submitAnswerToServer(item.word);
+      localStorage.setItem(localKey('findScore'), String(findScore));
+      localStorage.setItem(localKey('tfScore'), String(tfScore));
+      localStorage.setItem(localKey('teacherBonus'), String(teacherBonus));
+      await submitFoundToServer(item.word);
+      openQuestionModal(item);
     }
 
-    async function submitAnswerToServer(word) {
+    async function submitFoundToServer(word) {
       const url=getWebAppUrl();
       if(!url||!currentStudent) return;
-      const payload={action:'submitAnswer', name:currentStudent, word, basePoints:5};
       try {
-        const data = await jsonpRequest(payload);
+        const data = await jsonpRequest({action:'submitFound', name:currentStudent, word});
         if(data.ok && data.student) {
-          score=Number(data.student.score||score);
-          document.getElementById('total-score').textContent=score;
+          findScore=Number(data.student.findScore||findScore);
+          tfScore=Number(data.student.tfScore||tfScore);
+          teacherBonus=Number(data.student.teacherBonus||teacherBonus);
+          score=findScore+tfScore+teacherBonus;
+          updateScoreboard();
+          localStorage.setItem(localKey('findScore'), String(findScore));
           localStorage.setItem(localKey('score'), String(score));
         }
       } catch(e) {
-        flashMessage('Koneksi guru belum tersedia. Data tetap tersimpan di perangkat ini.');
+        flashMessage('Koneksi guru gagal; progres sementara tersimpan di perangkat.');
       }
     }
 
-    function openExplanationModal(item) {
-      document.getElementById('explain-word').textContent=item.word;
-      document.getElementById('explanationInput').value='';
+    function openQuestionModal(item) {
+      document.getElementById('question-word').textContent=item.word;
+      document.getElementById('question-statement').textContent=item.statement;
+      document.getElementById('btnTrue').disabled=false;
+      document.getElementById('btnFalse').disabled=false;
       document.getElementById('modal').classList.add('active');
-      document.getElementById('explanationInput').focus();
     }
 
-    async function saveExplanation() {
-      const text=document.getElementById('explanationInput').value.trim();
-      if(!activeWord) return;
-      if(!text) { alert('Tulis penjelasan terlebih dahulu.'); return; }
-      const word=activeWord.word;
-      localStorage.setItem(localKey('explain:'+word), text);
-      const url=getWebAppUrl();
-      if(url && currentStudent) {
-        try {
-          const data = await jsonpRequest({action:'saveExplanation',name:currentStudent,word,explanation:text});
-          if(!data.ok) flashMessage('Penjelasan disimpan lokal; sinkronisasi guru gagal.');
-        } catch(e) { flashMessage('Penjelasan disimpan lokal; sinkronisasi guru gagal.'); }
+    async function answerTrueFalse(answer) {
+      if(!activeWord || !questionPending) return;
+      const btnTrue=document.getElementById('btnTrue');
+      const btnFalse=document.getElementById('btnFalse');
+      btnTrue.disabled=true; btnFalse.disabled=true;
+      try {
+        const url=getWebAppUrl();
+        if(!url || !currentStudent) throw new Error('Server belum tersedia.');
+        const data=await jsonpRequest({action:'submitTF',name:currentStudent,word:activeWord.word,answer:String(answer)});
+        if(!data.ok || !data.student) throw new Error(data.message||'Jawaban tidak dapat disimpan.');
+        findScore=Number(data.student.findScore||findScore);
+        tfScore=Number(data.student.tfScore||tfScore);
+        teacherBonus=Number(data.student.teacherBonus||teacherBonus);
+        score=Number(data.student.totalScore|| (findScore+tfScore+teacherBonus));
+        tfAnswers=data.student.tfAnswers||tfAnswers;
+        localStorage.setItem(localKey('tfAnswers'), JSON.stringify(tfAnswers));
+        localStorage.setItem(localKey('findScore'), String(findScore));
+        localStorage.setItem(localKey('tfScore'), String(tfScore));
+        localStorage.setItem(localKey('teacherBonus'), String(teacherBonus));
+        localStorage.setItem(localKey('score'), String(score));
+        updateScoreboard();
+        flashMessage(data.correct ? 'Benar! +4 poin.' : 'Jawaban belum tepat. +0 poin.');
+        questionPending=false;
+        closeModal();
+        activeWord=null;
+        if(foundWords.size===wordData.length) setTimeout(showCompletionModal, 350);
+      } catch(e) {
+        btnTrue.disabled=false; btnFalse.disabled=false;
+        flashMessage('Jawaban belum tersimpan. Periksa koneksi lalu coba lagi.');
       }
-      closeModal();
     }
 
     function closeModal() { document.getElementById('modal').classList.remove('active'); }
+
+    function showCompletionModal() {
+      document.getElementById('completionScore').textContent=score;
+      document.getElementById('completionModal').classList.add('active');
+    }
+    function closeCompletionModal() { document.getElementById('completionModal').classList.remove('active'); }
 
     function updateScoreboard() {
       document.getElementById('found-count').textContent=foundWords.size;
@@ -881,7 +948,7 @@
     function updateControls() {
       const btn=document.getElementById('btn-undo');
       btn.disabled=true; btn.classList.remove('active');
-      btn.innerHTML='✅ Mode belajar: jawaban benar bernilai +5';
+      btn.innerHTML='🎯 Menemukan kata = +6 · Tepat menjawab = +4';
     }
 
     function flashMessage(msg) {
@@ -934,16 +1001,22 @@
       const wrap=document.getElementById('adminTableWrap');
       if(!students.length) { wrap.innerHTML='<div class="admin-empty">Belum ada siswa yang mengerjakan.</div>'; return; }
       wrap.innerHTML=`<div class="admin-table-wrap"><table class="admin-table"><thead><tr>
-        <th>No</th><th>Nama / Username</th><th>Jawaban Benar</th><th>Skor</th><th>Tambah Skor Guru</th><th>Terakhir Aktif</th>
+        <th>No</th><th>Nama / Username</th><th>Skor Menemukan Kata</th><th>Skor Benar/Salah</th><th>Skor Total</th><th>Nilai Akhir</th><th>Tambah Skor Guru</th><th>Aksi</th><th>Terakhir Aktif</th>
       </tr></thead><tbody>
       ${students.map((s,i)=>`<tr>
         <td>${i+1}</td>
         <td><strong>${escapeHtml(s.name)}</strong></td>
-        <td>${Number(s.foundCount||0)} / ${wordData.length}</td>
-        <td class="score-big">${Number(s.score||0)}</td>
+        <td>${Number(s.findScore||0)} (${Number(s.foundCount||0)}/${wordData.length})</td>
+        <td>${Number(s.tfScore||0)} (${Number(s.tfCorrect||0)}/${Number(s.tfAnswered||0)})</td>
+        <td class="score-big">${Number(s.totalScore||0)}</td>
+        <td class="score-big">${Number(s.finalGrade||1)}</td>
         <td><div class="award-row">
           <button class="award-btn award-3" onclick="awardScore('${encodeURIComponent(s.name)}',3)">+3</button>
           <button class="award-btn award-5" onclick="awardScore('${encodeURIComponent(s.name)}',5)">+5</button>
+        </div></td>
+        <td><div class="award-row">
+          <button class="admin-reset" onclick="resetStudent('${encodeURIComponent(s.name)}')">Reset</button>
+          <button class="admin-danger" onclick="deleteStudent('${encodeURIComponent(s.name)}')">Hapus</button>
         </div></td>
         <td>${escapeHtml(s.lastActive||'-')}</td>
       </tr>`).join('')}
@@ -960,10 +1033,32 @@
       } catch(e) { alert('Gagal menambah skor: '+e.message); }
     }
 
+    async function resetStudent(encodedName) {
+      const name=decodeURIComponent(encodedName), url=getWebAppUrl();
+      if(!url||!adminKey) return;
+      if(!confirm('Reset seluruh progres dan skor siswa “'+name+'”?')) return;
+      try {
+        const data=await jsonpRequest({action:'resetStudent',key:adminKey,name});
+        if(!data.ok) throw new Error(data.message||'Gagal reset');
+        await loadAdminData();
+      } catch(e) { alert('Gagal reset siswa: '+e.message); }
+    }
+
+    async function deleteStudent(encodedName) {
+      const name=decodeURIComponent(encodedName), url=getWebAppUrl();
+      if(!url||!adminKey) return;
+      if(!confirm('Hapus data siswa “'+name+'” dari daftar?')) return;
+      try {
+        const data=await jsonpRequest({action:'deleteStudent',key:adminKey,name});
+        if(!data.ok) throw new Error(data.message||'Gagal hapus');
+        await loadAdminData();
+      } catch(e) { alert('Gagal menghapus siswa: '+e.message); }
+    }
+
     async function saveServerUrl() {
       const url=document.getElementById('serverUrlInput').value.trim();
       localStorage.setItem('game-webapp-url',url);
-      flashMessage('URL server tersimpan di perangkat ini.');
+      flashMessage('URL server tersimpan.');
     }
 
     function loadSavedUrl() {
