@@ -495,7 +495,7 @@
       </div>
       <div class="control-container">
         <div class="scoreboard">
-          <div class="score-item">Terkuak: <span id="found-count">0</span> / 30</div>
+          <div class="score-item">Terkuak: <span id="found-count">0</span> / 40</div>
           <div class="score-item">Total Poin: <span id="total-score">0</span></div>
           <div class="progress-chip">Petunjuk: <span id="hint-level">1</span> huruf</div>
         </div>
@@ -509,7 +509,7 @@
     <div class="main-container">
       <div class="grid-container"><div id="word-grid"></div></div>
       <div class="sidebar">
-        <h2>30 Kata Kunci (Petunjuk)</h2>
+        <h2>40 Kata Kunci (Petunjuk)</h2>
         <div class="word-list" id="word-list"></div>
       </div>
     </div>
@@ -523,7 +523,8 @@
       <div class="question-card">
         <div style="font-size:.9rem;color:var(--accent-gold);font-weight:800;margin-bottom:8px">PERNYATAAN</div>
         <div class="statement" id="question-statement">Pernyataan akan muncul di sini.</div>
-        <div class="question-help">Berdasarkan materi yang kamu pelajari, apakah pernyataan di atas benar atau salah?</div>
+        <div id="answerFeedback" class="question-help" style="margin-top:14px;padding:10px 12px;border-radius:10px;text-align:center;font-size:1rem;font-weight:800;display:none"></div>
+        <div class="question-help" id="questionHelp">Berdasarkan materi yang kamu pelajari, apakah pernyataan di atas benar atau salah?</div>
         <div class="tf-actions">
           <button class="tf-btn tf-true" id="btnTrue" onclick="answerTrueFalse(true)">✓ BENAR</button>
           <button class="tf-btn tf-false" id="btnFalse" onclick="answerTrueFalse(false)">✕ SALAH</button>
@@ -582,40 +583,50 @@
     // Isi dengan URL Web App Google Apps Script berakhiran /exec. Untuk GitHub Pages, versi ini memakai JSONP agar tidak terkena CORS.
     const CONFIG = {
       WEB_APP_URL: "https://script.google.com/macros/s/AKfycbz3E1O3g9pNYSgEveZ5IF3oHECOtqCuMNyH68WDyzrhbP-bYfxWAcXAekdwvuLQBUD47g/exec",
-      APP_VERSION: "2.2-TF"
+      APP_VERSION: "2.4-40SOAL"
     };
 
     const wordData = [
-      { word: "JAHILIYAH", desc: "Masa 'kebodohan' moral dan aqidah masyarakat Makkah pra-Islam. Bukan bodoh secara akal/sains, melainkan tersesat dari ajaran tauhid dan keadilan sosial." , statement: "Jahiliyah merujuk pada masa ketika masyarakat Makkah mengalami kebodohan moral dan aqidah, bukan berarti mereka bodoh dalam akal atau sains." },
+      { word: "JAHILIYAH", desc: "Masa 'kebodohan' moral dan aqidah masyarakat Makkah pra-Islam. Bukan bodoh secara akal/sains, melainkan tersesat dari ajaran tauhid dan keadilan sosial." , statement: "Jahiliyah adalah masa ketika masyarakat Makkah tidak mengenal perdagangan dan kehidupan sastra." },
       { word: "HUBAL", desc: "Berhala terbesar berbahan batu akik merah yang diletakkan di dalam Ka'bah dan dijadikan sesembahan utama suku Quraisy." , statement: "Hubal adalah berhala terbesar yang disebut berbahan batu akik merah dan dijadikan sesembahan utama suku Quraisy." },
-      { word: "LATA", desc: "Berhala dalam bentuk batu putih berukir yang disembah dan disakralkan oleh masyarakat Makkah dan Thaqif di Kota Thaqif." , statement: "Lata adalah berhala berbentuk pohon sakral yang berada di Lembah Nakhlah dan dianggap paling perkasa oleh Quraisy." },
+      { word: "LATA", desc: "Berhala dalam bentuk batu putih berukir yang disembah dan disakralkan oleh masyarakat Makkah dan Thaqif di Kota Thaqif." , statement: "Lata adalah berhala utama yang ditempatkan di dalam Ka'bah dan menjadi sesembahan utama seluruh suku Quraisy." },
       { word: "UZZA", desc: "Berhala berbentuk pohon/bangunan sakral di Lembah Nakhlah yang dianggap berhala paling perkasa oleh suku Quraisy." , statement: "Uzza dikaitkan dengan pohon atau bangunan sakral di Lembah Nakhlah dan dianggap berhala yang sangat perkasa oleh Quraisy." },
       { word: "MANAT", desc: "Berhala tertua yang dipuja oleh masyarakat Makkah dan Madinah pra-Islam di kawasan Qudaid." , statement: "Manat disebut sebagai berhala tertua yang dipuja masyarakat Makkah dan Madinah pra-Islam di kawasan Qudaid." },
-      { word: "BERHALA", desc: "Patung atau objek buatan manusia yang dijadikan tandingan dan perantara untuk menyembah Allah SWT." , statement: "Berhala adalah patung atau objek buatan manusia yang dijadikan tandingan atau perantara dalam penyembahan kepada Allah." },
-      { word: "MUSYRIK", desc: "Sebutan untuk orang yang menyekutukan Allah SWT dengan menyembah berhala atau benda lain." , statement: "Musyrik adalah sebutan bagi orang yang hanya menyembah Allah dan tidak menyekutukan-Nya dengan apa pun." },
-      { word: "AZLAM", desc: "Anak panah tanpa bulu yang digunakan masyarakat Jahiliyah untuk mengocok nasib/keputusan di depan berhala." , statement: "Azlam adalah anak panah tanpa bulu yang digunakan untuk mengundi nasib atau mengambil keputusan di depan berhala." },
+      { word: "BERHALA", desc: "Patung atau objek buatan manusia yang dijadikan tandingan dan perantara untuk menyembah Allah SWT." , statement: "Berhala adalah benda yang dibuat manusia tetapi tidak pernah dijadikan objek penyembahan oleh masyarakat Jahiliyah." },
+      { word: "MUSYRIK", desc: "Sebutan untuk orang yang menyekutukan Allah SWT dengan menyembah berhala atau benda lain." , statement: "Musyrik adalah sebutan bagi orang yang menyekutukan Allah dengan sesuatu dalam ibadah." },
+      { word: "AZLAM", desc: "Anak panah tanpa bulu yang digunakan masyarakat Jahiliyah untuk mengocok nasib/keputusan di depan berhala." , statement: "Azlam adalah dadu yang digunakan masyarakat Jahiliyah untuk mengundi nasib di pasar." },
       { word: "TAKHAYUL", desc: "Kepercayaan irasional pada hal-hal mistis yang tidak berdasar ilmu pengetahuan maupun ajaran agama murni." , statement: "Takhayul adalah kepercayaan irasional pada hal-hal mistis yang tidak berdasar pada ilmu pengetahuan maupun ajaran agama murni." },
-      { word: "HANIF", desc: "Sikap/ajaran tauhid murni peninggalan Nabi Ibrahim AS yang masih dipegang oleh segelintir orang Makkah sebelum Islam." , statement: "Hanif merujuk pada sikap atau ajaran tauhid murni peninggalan Nabi Ibrahim AS yang masih dipegang sebagian orang sebelum Islam." },
+      { word: "HANIF", desc: "Sikap/ajaran tauhid murni peninggalan Nabi Ibrahim AS yang masih dipegang oleh segelintir orang Makkah sebelum Islam." , statement: "Hanif adalah sikap fanatisme suku yang mengharuskan seseorang membela kelompoknya dalam keadaan apa pun." },
       { word: "ASABIYAH", desc: "Sikap fanatisme suku atau kelompok yang buta; wajib membela anggota sukunya baik dalam posisi benar maupun salah." , statement: "Asabiyah adalah fanatisme suku atau kelompok yang membela anggota kelompoknya secara buta, baik benar maupun salah." },
-      { word: "KABILAH", desc: "Suku atau kelompok kekerabatan besar berdasarkan garis keturunan yang menjadi struktur masyarakat utama di Arab." , statement: "Kabilah adalah kelompok kekerabatan besar berdasarkan garis keturunan yang menjadi struktur utama masyarakat Arab." },
+      { word: "KABILAH", desc: "Suku atau kelompok kekerabatan besar berdasarkan garis keturunan yang menjadi struktur masyarakat utama di Arab." , statement: "Kabilah adalah lembaga perdagangan Quraisy yang mengatur seluruh aktivitas pasar di Makkah." },
       { word: "PERBUDAKAN", desc: "Sistem sosial diskriminatif yang memandang manusia sebagai barang dagangan tanpa hak-hak kemanusiaan." , statement: "Perbudakan adalah sistem sosial yang memandang manusia sebagai barang dan menghilangkan hak-hak kemanusiaannya." },
-      { word: "PASARUKAZ", desc: "Pusat perdagangan sekaligus panggung festival budaya dan kompetisi membaca syair paling bergengsi di Makkah." , statement: "Pasar Ukaz merupakan pusat perdagangan yang juga menjadi tempat festival budaya dan kompetisi syair terkenal." },
+      { word: "PASARUKAZ", desc: "Pusat perdagangan sekaligus panggung festival budaya dan kompetisi membaca syair paling bergengsi di Makkah." , statement: "Pasar Ukaz merupakan pusat pemerintahan politik Quraisy yang digunakan untuk menetapkan hukum kota Makkah." },
       { word: "SYAIR", desc: "Puisi atau karya sastra tinggi yang dijadikan kebanggaan, tolok ukur kehormatan, dan alat propaganda antar-suku." , statement: "Syair adalah karya sastra yang menjadi kebanggaan dan juga dapat digunakan sebagai alat propaganda antar-suku." },
       { word: "WADULBANAT", desc: "Tradisi kejam mengubur bayi perempuan hidup-hidup karena dianggap membawa aib dan kemiskinan bagi kabilah." , statement: "Wadulbanat merupakan tradisi mengubur bayi laki-laki hidup-hidup karena dianggap membawa aib dan kemiskinan." },
       { word: "KASTA", desc: "Pemisahan derajat sosial yang tajam antara elit bangsawan kaya dan rakyat biasa/budak." , statement: "Kasta menggambarkan pemisahan derajat sosial yang tajam antara elit bangsawan kaya dan rakyat biasa atau budak." },
-      { word: "SUKU", desc: "Tatanan ikatan sosial masyarakat Makkah yang terikat oleh pertalian darah atau keturunan nenek moyang yang sama." , statement: "Suku merupakan tatanan ikatan sosial masyarakat Makkah yang berdasarkan pertalian darah atau keturunan nenek moyang yang sama." },
+      { word: "SUKU", desc: "Tatanan ikatan sosial masyarakat Makkah yang terikat oleh pertalian darah atau keturunan nenek moyang yang sama." , statement: "Suku dalam masyarakat Makkah terbentuk terutama berdasarkan kesamaan agama, bukan hubungan darah atau keturunan." },
       { word: "RIBA", desc: "Praktek penetapan bunga pinjaman berlipat ganda yang sangat mencekik dan memeras rakyat miskin/berhutang." , statement: "Riba merupakan praktik penetapan bunga pinjaman berlipat ganda yang dapat mencekik dan memeras orang yang berutang." },
-      { word: "MAISIR", desc: "Praktek perjudian yang marak dilakukan masyarakat Jahiliyah sebagai ajang spekulasi dan pencarian kekayaan instan." , statement: "Maisir adalah praktik perjudian yang marak dilakukan masyarakat Jahiliyah untuk spekulasi dan mencari kekayaan instan." },
+      { word: "MAISIR", desc: "Praktek perjudian yang marak dilakukan masyarakat Jahiliyah sebagai ajang spekulasi dan pencarian kekayaan instan." , statement: "Maisir adalah kegiatan sedekah wajib yang dilakukan masyarakat Jahiliyah untuk membantu orang miskin." },
       { word: "MONOPOLI", desc: "Penguasaan jalur dan komoditas pasar secara sepihak oleh para elit bangsawan Quraisy demi mengeruk keuntungan." , statement: "Monopoli adalah penguasaan jalur dan komoditas pasar secara sepihak oleh elit untuk memperoleh keuntungan." },
       { word: "DINAR", desc: "Mata uang emas asal Romawi yang digunakan masyarakat Makkah untuk transaksi bernilai tinggi." , statement: "Dinar adalah mata uang perak asal Persia yang digunakan masyarakat Makkah untuk transaksi sehari-hari." },
       { word: "DIRHAM", desc: "Mata uang perak asal Persia yang digunakan masyarakat Makkah untuk transaksi bernilai sedang/sehari-hari." , statement: "Dirham adalah mata uang perak asal Persia yang digunakan masyarakat Makkah untuk transaksi bernilai sedang atau sehari-hari." },
       { word: "SYAM", desc: "Kawasan utara (sekarang Suriah, Palestina, Yordania) yang menjadi tujuan rute perdagangan musim panas suku Quraisy." , statement: "Syam merupakan kawasan selatan yang menjadi tujuan rute perdagangan musim dingin suku Quraisy." },
-      { word: "YAMAN", desc: "Kawasan selatan yang menjadi tujuan rute perdagangan musim dingin suku Quraisy." , statement: "Yaman merupakan kawasan selatan yang menjadi tujuan rute perdagangan musim dingin suku Quraisy." },
+      { word: "YAMAN", desc: "Kawasan selatan yang menjadi tujuan rute perdagangan musim dingin suku Quraisy." , statement: "Yaman merupakan kawasan utara yang menjadi tujuan rute perdagangan musim panas suku Quraisy." },
       { word: "QURAISY", desc: "Suku bangsawan terpandang dan paling berkuasa di Makkah yang memegang kendali atas Ka'bah dan perdagangan." , statement: "Quraisy adalah suku terpandang dan berkuasa di Makkah yang memegang kendali atas Ka'bah dan perdagangan." },
-      { word: "DARUNNADWAH", desc: "Gedung/parlemen tempat berkumpulnya para pemuka suku Quraisy untuk bermusyawarah dan membuat keputusan politik." , statement: "Darunnadwah adalah tempat berkumpul para pemuka Quraisy untuk bermusyawarah dan membuat keputusan politik." },
+      { word: "DARUNNADWAH", desc: "Gedung/parlemen tempat berkumpulnya para pemuka suku Quraisy untuk bermusyawarah dan membuat keputusan politik." , statement: "Darunnadwah adalah tempat ibadah khusus yang digunakan Quraisy untuk melaksanakan ritual penyembahan berhala." },
       { word: "MALA", desc: "Dewan permusyawaratan elit yang terdiri dari para kepala suku/kabilah untuk mengatur hukum di kota Makkah." , statement: "Mala adalah dewan permusyawaratan elit yang terdiri atas para kepala suku atau kabilah untuk mengatur urusan Makkah." },
-      { word: "FIJAR", desc: "Perang antar-suku yang melanggar keagungan bulan-bulan haram dan tempat suci di Makkah pra-Islam." , statement: "Fijar adalah perang antar-suku yang melanggar keagungan bulan-bulan haram dan tempat suci di Makkah." },
-      { word: "KABAH", desc: "Bangunan suci peninggalan Nabi Ibrahim AS dan Nabi Ismail AS yang disalahgunakan menjadi pusat penempatan 360 berhala.", statement: "Ka'bah merupakan bangunan suci peninggalan Nabi Ibrahim AS dan Nabi Ismail AS yang pada masa Jahiliyah menjadi pusat penempatan 360 berhala." }
+      { word: "FIJAR", desc: "Perang antar-suku yang melanggar keagungan bulan-bulan haram dan tempat suci di Makkah pra-Islam." , statement: "Fijar adalah festival syair tahunan yang diselenggarakan untuk merayakan keberhasilan perdagangan Quraisy." },
+      { word: "KABAH", desc: "Bangunan suci peninggalan Nabi Ibrahim AS dan Nabi Ismail AS yang disalahgunakan menjadi pusat penempatan 360 berhala.", statement: "Ka'bah merupakan bangunan suci peninggalan Nabi Ibrahim AS dan Nabi Ismail AS yang pada masa Jahiliyah menjadi pusat penempatan 360 berhala." },
+      { word: "GAJAH", desc: "Tahun Gajah adalah sebutan tahun kelahiran Nabi Muhammad SAW yang dikaitkan dengan peristiwa pasukan bergajah yang hendak menyerang Ka'bah.", statement: "Nabi Muhammad Saw. lahir pada tahun yang dikenal dengan sebutan Tahun Gajah." },
+      { word: "MUTHALIB", desc: "Abdul Muthalib adalah kakek Nabi Muhammad SAW yang mengasuh beliau setelah wafatnya ibunda dan sebelumnya ayah beliau telah wafat.", statement: "Abdul Muthalib adalah paman Nabi Muhammad Saw. yang mengasuhnya sejak kecil." },
+      { word: "ABDULLAH", desc: "Abdullah bin Abdul Muthalib adalah ayah Nabi Muhammad SAW yang wafat sebelum kelahiran beliau.", statement: "Abdullah bin Abdul Muthalib adalah ayah Nabi Muhammad Saw. yang wafat sebelum beliau lahir." },
+      { word: "AMINAH", desc: "Aminah binti Wahb adalah ibu Nabi Muhammad SAW.", statement: "Aminah binti Wahb adalah ibu Nabi Muhammad Saw." },
+      { word: "HALIMAH", desc: "Halimah Sa'diyah adalah ibu susuan Nabi Muhammad SAW, bukan ibu kandung beliau.", statement: "Halimah Sa'diyah adalah ibu kandung Nabi Muhammad Saw." },
+      { word: "SIRRIYAH", desc: "Dakwah sirriyah adalah dakwah Nabi Muhammad SAW pada tahap awal yang dilakukan secara sembunyi-sembunyi.", statement: "Dakwah sirriyah adalah dakwah yang dilakukan Nabi Muhammad Saw. secara terang-terangan di depan umum." },
+      { word: "JAHRIYAH", desc: "Dakwah jahriyah adalah dakwah yang dilakukan secara terang-terangan setelah adanya perintah untuk menyampaikan dakwah secara terbuka.", statement: "Dakwah jahriyah dimulai setelah turunnya perintah untuk berdakwah secara terang-terangan." },
+      { word: "SABIQUN", desc: "As-Sabiqun al-Awwalun adalah sebutan bagi orang-orang yang pertama kali masuk Islam.", statement: "As-Sabiqun al-Awwalun adalah sebutan bagi orang-orang yang pertama kali masuk Islam." },
+      { word: "ARQAM", desc: "Darul Arqam adalah rumah Al-Arqam bin Abi Al-Arqam yang menjadi tempat pertemuan dan pembinaan kaum muslimin secara sembunyi-sembunyi pada fase awal dakwah.", statement: "Darul Arqam adalah rumah yang dijadikan tempat pertemuan dan pembinaan kaum muslimin secara sembunyi-sembunyi." },
+      { word: "HABASYAH", desc: "Habasyah merupakan negeri tujuan hijrah pertama sebagian umat Islam sebelum hijrah ke Madinah.", statement: "Habasyah adalah negeri tujuan hijrah pertama umat Islam sebelum hijrah ke Madinah." }
     ];
     const GRID_SIZE = 18;
     let grid = Array(GRID_SIZE).fill(null).map(() => Array(GRID_SIZE).fill(''));
@@ -859,7 +870,7 @@
       activeWord=item;
       findScore += 6;
       score = findScore + tfScore + teacherBonus;
-      hintLevel = Math.min(30, foundWords.size + 1);
+      hintLevel = Math.min(wordData.length, foundWords.size + 1);
       questionPending = true;
       updateScoreboard();
       updateGridHighlights();
@@ -895,6 +906,9 @@
     function openQuestionModal(item) {
       document.getElementById('question-word').textContent=item.word;
       document.getElementById('question-statement').textContent=item.statement;
+      document.getElementById('answerFeedback').style.display='none';
+      document.getElementById('answerFeedback').textContent='';
+      document.getElementById('questionHelp').style.display='block';
       document.getElementById('btnTrue').disabled=false;
       document.getElementById('btnFalse').disabled=false;
       document.getElementById('modal').classList.add('active');
@@ -904,6 +918,7 @@
       if(!activeWord || !questionPending) return;
       const btnTrue=document.getElementById('btnTrue');
       const btnFalse=document.getElementById('btnFalse');
+      const feedback=document.getElementById('answerFeedback');
       btnTrue.disabled=true; btnFalse.disabled=true;
       try {
         const url=getWebAppUrl();
@@ -921,11 +936,22 @@
         localStorage.setItem(localKey('teacherBonus'), String(teacherBonus));
         localStorage.setItem(localKey('score'), String(score));
         updateScoreboard();
-        flashMessage(data.correct ? 'Benar! +4 poin.' : 'Jawaban belum tepat. +0 poin.');
+
+        feedback.style.display='block';
+        feedback.style.background=data.correct ? 'rgba(16,185,129,.14)' : 'rgba(239,68,68,.14)';
+        feedback.style.border='1px solid ' + (data.correct ? 'rgba(16,185,129,.45)' : 'rgba(239,68,68,.45)');
+        feedback.style.color=data.correct ? '#6ee7b7' : '#fca5a5';
+        feedback.innerHTML=data.correct
+          ? '✅ JAWABAN BENAR! <span style="color:#fbbf24">+4 poin</span>'
+          : '❌ JAWABAN SALAH. <span style="color:#cbd5e1">+0 poin</span>';
+        document.getElementById('questionHelp').style.display='none';
+
         questionPending=false;
-        closeModal();
-        activeWord=null;
-        if(foundWords.size===wordData.length) setTimeout(showCompletionModal, 350);
+        setTimeout(()=>{
+          closeModal();
+          activeWord=null;
+          if(foundWords.size===wordData.length) setTimeout(showCompletionModal, 300);
+        }, 1200);
       } catch(e) {
         btnTrue.disabled=false; btnFalse.disabled=false;
         flashMessage('Jawaban belum tersimpan. Periksa koneksi lalu coba lagi.');
