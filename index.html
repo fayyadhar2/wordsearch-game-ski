@@ -579,7 +579,7 @@
 
 <script>
     // ================= KONFIGURASI =================
-    // Setelah membuat Google Apps Script Web App, isi URL di bawah.
+    // URL Web App Google Apps Script untuk sinkronisasi siswa dan guru.
     // Isi dengan URL Web App Google Apps Script berakhiran /exec. Untuk GitHub Pages, versi ini memakai JSONP agar tidak terkena CORS.
     const CONFIG = {
       WEB_APP_URL: "https://script.google.com/macros/s/AKfycbz3E1O3g9pNYSgEveZ5IF3oHECOtqCuMNyH68WDyzrhbP-bYfxWAcXAekdwvuLQBUD47g/exec",
@@ -737,6 +737,9 @@
         // Tetap bisa bermain offline/local.
       }
     }
+
+    // Kunci Benar/Salah disamakan dengan backend agar feedback dapat tampil segera
+    const TF_TRUTHS = {JAHILIYAH:false,HUBAL:true,LATA:false,UZZA:true,MANAT:true,BERHALA:false,MUSYRIK:true,AZLAM:false,TAKHAYUL:true,HANIF:false,ASABIYAH:true,KABILAH:false,PERBUDAKAN:true,PASARUKAZ:false,SYAIR:true,WADULBANAT:false,KASTA:true,SUKU:false,RIBA:true,MAISIR:false,MONOPOLI:true,DINAR:false,DIRHAM:true,SYAM:false,YAMAN:false,QURAISY:true,DARUNNADWAH:false,MALA:true,FIJAR:false,KABAH:true,GAJAH:true,MUTHALIB:false,ABDULLAH:true,AMINAH:true,HALIMAH:false,SIRRIYAH:false,JAHRIYAH:true,SABIQUN:true,ARQAM:true,HABASYAH:true};
 
     // ================= GAME =================
     function initGame() {
@@ -919,11 +922,52 @@
       const btnTrue=document.getElementById('btnTrue');
       const btnFalse=document.getElementById('btnFalse');
       const feedback=document.getElementById('answerFeedback');
-      btnTrue.disabled=true; btnFalse.disabled=true;
+      const word=activeWord.word;
+      const correct = Boolean(answer) === Boolean(TF_TRUTHS[word]);
+
+      // Kunci UI langsung: siswa mendapat respons walaupun server lambat/gagal.
+      btnTrue.disabled=true;
+      btnFalse.disabled=true;
+      questionPending=false;
+
+      // Cegah jawaban ganda untuk kata yang sama.
+      if(!tfAnswers[word]) {
+        tfAnswers[word]={answer:Boolean(answer),correct};
+        if(correct) tfScore += 4;
+      }
+      score=findScore+tfScore+teacherBonus;
+      localStorage.setItem(localKey('tfAnswers'), JSON.stringify(tfAnswers));
+      localStorage.setItem(localKey('tfScore'), String(tfScore));
+      localStorage.setItem(localKey('score'), String(score));
+      updateScoreboard();
+
+      feedback.style.display='block';
+      feedback.style.background=correct ? 'rgba(16,185,129,.14)' : 'rgba(239,68,68,.14)';
+      feedback.style.border='1px solid ' + (correct ? 'rgba(16,185,129,.45)' : 'rgba(239,68,68,.45)');
+      feedback.style.color=correct ? '#6ee7b7' : '#fca5a5';
+      feedback.innerHTML=correct
+        ? '✅ JAWABAN BENAR! <span style="color:#fbbf24">+4 poin</span><div style="font-size:.78rem;color:#94a3b8;margin-top:5px">Menyimpan jawaban…</div>'
+        : '❌ JAWABAN SALAH. <span style="color:#cbd5e1">+0 poin</span><div style="font-size:.78rem;color:#94a3b8;margin-top:5px">Menyimpan jawaban…</div>';
+      document.getElementById('questionHelp').style.display='none';
+
+      // Simpan ke server di latar belakang; jangan menahan UI.
+      submitTFToServer(word, answer, correct, feedback).catch(()=>{});
+
+      setTimeout(()=>{
+        closeModal();
+        activeWord=null;
+        if(foundWords.size===wordData.length) setTimeout(showCompletionModal, 300);
+      }, 1400);
+    }
+
+    async function submitTFToServer(word, answer, localCorrect, feedbackEl) {
+      const url=getWebAppUrl();
+      if(!url || !currentStudent) {
+        if(feedbackEl) feedbackEl.innerHTML += '<div style="font-size:.78rem;color:#fbbf24;margin-top:5px">⚠️ Belum tersinkron ke server.</div>';
+        return;
+      }
       try {
-        const url=getWebAppUrl();
-        if(!url || !currentStudent) throw new Error('Server belum tersedia.');
-        const data=await jsonpRequest({action:'submitTF',name:currentStudent,word:activeWord.word,answer:String(answer)});
+        const data=await jsonpRequest({action:'submitTF',name:currentStudent,word,answer:String(answer)});
         if(!data.ok || !data.student) throw new Error(data.message||'Jawaban tidak dapat disimpan.');
         findScore=Number(data.student.findScore||findScore);
         tfScore=Number(data.student.tfScore||tfScore);
@@ -936,25 +980,17 @@
         localStorage.setItem(localKey('teacherBonus'), String(teacherBonus));
         localStorage.setItem(localKey('score'), String(score));
         updateScoreboard();
-
-        feedback.style.display='block';
-        feedback.style.background=data.correct ? 'rgba(16,185,129,.14)' : 'rgba(239,68,68,.14)';
-        feedback.style.border='1px solid ' + (data.correct ? 'rgba(16,185,129,.45)' : 'rgba(239,68,68,.45)');
-        feedback.style.color=data.correct ? '#6ee7b7' : '#fca5a5';
-        feedback.innerHTML=data.correct
-          ? '✅ JAWABAN BENAR! <span style="color:#fbbf24">+4 poin</span>'
-          : '❌ JAWABAN SALAH. <span style="color:#cbd5e1">+0 poin</span>';
-        document.getElementById('questionHelp').style.display='none';
-
-        questionPending=false;
-        setTimeout(()=>{
-          closeModal();
-          activeWord=null;
-          if(foundWords.size===wordData.length) setTimeout(showCompletionModal, 300);
-        }, 1200);
+        if(feedbackEl && document.body.contains(feedbackEl)) {
+          const serverCorrect=Boolean(data.correct);
+          feedbackEl.innerHTML=(serverCorrect
+            ? '✅ JAWABAN BENAR! <span style="color:#fbbf24">+4 poin</span>'
+            : '❌ JAWABAN SALAH. <span style="color:#cbd5e1">+0 poin</span>') +
+            '<div style="font-size:.78rem;color:#6ee7b7;margin-top:5px">✓ Jawaban tersimpan</div>';
+        }
       } catch(e) {
-        btnTrue.disabled=false; btnFalse.disabled=false;
-        flashMessage('Jawaban belum tersimpan. Periksa koneksi lalu coba lagi.');
+        if(feedbackEl && document.body.contains(feedbackEl)) {
+          feedbackEl.innerHTML += '<div style="font-size:.78rem;color:#fbbf24;margin-top:5px">⚠️ Jawaban tersimpan di perangkat, server belum merespons.</div>';
+        }
       }
     }
 
