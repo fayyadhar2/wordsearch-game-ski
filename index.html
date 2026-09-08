@@ -583,7 +583,7 @@
     // Isi dengan URL Web App Google Apps Script berakhiran /exec. Untuk GitHub Pages, versi ini memakai JSONP agar tidak terkena CORS.
     const CONFIG = {
       WEB_APP_URL: "https://script.google.com/macros/s/AKfycbz3E1O3g9pNYSgEveZ5IF3oHECOtqCuMNyH68WDyzrhbP-bYfxWAcXAekdwvuLQBUD47g/exec",
-      APP_VERSION: "2.4-40SOAL"
+      APP_VERSION: "2.6-ADMIN-FIX"
     };
 
     const wordData = [
@@ -1050,12 +1050,12 @@
       const status=document.getElementById('adminStatus');
       status.textContent='Memuat data siswa…';
       try {
-        const data = await jsonpRequest({action:'adminStudents', key:adminKey});
+        const data = await jsonpRequest({action:'adminStudentsSummary', key:adminKey});
         if(!data.ok) throw new Error(data.message||'Gagal memuat');
         renderAdminTable(data.students||[]);
         status.textContent='Diperbarui: '+new Date().toLocaleTimeString('id-ID');
       } catch(e) {
-        status.textContent='Gagal memuat data: '+e.message;
+        status.textContent='Gagal memuat data: '+(e&&e.message?e.message:String(e))+'. Coba Refresh.';
       }
     }
 
